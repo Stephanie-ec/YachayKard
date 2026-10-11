@@ -11,6 +11,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementación JDBC de {@link UsuarioDAO}.
+ * Cada método abre su conexión con try-with-resources, que la cierra automáticamente.
+ */
 public class UsuarioDAOImpl implements UsuarioDAO {
 
     @Override
@@ -93,6 +97,44 @@ public class UsuarioDAOImpl implements UsuarioDAO {
         return usuarios;
     }
 
+    @Override
+    public Usuario buscarPorUsername(String username) throws SQLException {
+        String sql = "SELECT * FROM usuario WHERE username = ?";
+
+        try (Connection con = ConexionBD.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? mapearUsuario(rs) : null;
+            }
+        }
+    }
+
+    @Override
+    public boolean autenticar(String username, String password) throws SQLException {
+        String sql = "SELECT 1 FROM usuario WHERE username = ? AND password = ?";
+
+        try (Connection con = ConexionBD.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+            ps.setString(2, password);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    /**
+     * Convierte la fila actual del ResultSet en un objeto Usuario.
+     *
+     * @param rs resultado posicionado en una fila
+     * @return objeto con los datos de la fila
+     * @throws SQLException si una columna no existe
+     */
     private Usuario mapearUsuario(ResultSet rs) throws SQLException {
         Usuario usuario = new Usuario();
         usuario.setIdUsuario(rs.getInt("id_usuario"));
