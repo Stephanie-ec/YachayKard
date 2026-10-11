@@ -79,7 +79,7 @@ public class EstudianteDAOImpl implements EstudianteDAO {
 
     @Override
     public List<Estudiante> listarPorSeccion(int idSeccion) throws SQLException {
-        return consultar("SELECT e.* FROM estudiante e JOIN matricula m ON m.id_estudiante = e.id_estudiante WHERE m.id_seccion = ? ORDER BY e.apellidos, e.nombres", idSeccion);
+        return consultar("SELECT e.* FROM estudiante e JOIN matricula m ON m.id_estudiante = e.id_estudiante WHERE m.id_seccion = ? AND m.estado = 'Activa' ORDER BY e.apellidos, e.nombres", idSeccion);
     }
 
     /**
@@ -110,7 +110,7 @@ public class EstudianteDAOImpl implements EstudianteDAO {
     /**
      * Asigna los campos comunes de INSERT y UPDATE, en el orden de las columnas.
      *
-     * @param ps sentencia preparada
+     * @param ps         sentencia preparada
      * @param estudiante datos de origen
      * @throws SQLException si falla la asignación de un parámetro
      */
