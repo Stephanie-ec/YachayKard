@@ -11,6 +11,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementación JDBC de {@link PermisoDAO}.
+ * Cada método abre su conexión con try-with-resources, que la cierra automáticamente.
+ */
 public class PermisoDAOImpl implements PermisoDAO {
 
     @Override
@@ -85,6 +89,31 @@ public class PermisoDAOImpl implements PermisoDAO {
         return permisos;
     }
 
+    @Override
+    public boolean verificar(int idRol, String nombrePermiso) throws SQLException {
+        String sql = "SELECT 1 FROM rol_permiso rp " +
+                "JOIN permiso p ON p.id_permiso = rp.id_permiso " +
+                "WHERE rp.id_rol = ? AND p.nombre_permiso = ?";
+
+        try (Connection con = ConexionBD.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idRol);
+            ps.setString(2, nombrePermiso);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    /**
+     * Convierte la fila actual del ResultSet en un objeto Permiso.
+     *
+     * @param rs resultado posicionado en una fila
+     * @return objeto con los datos de la fila
+     * @throws SQLException si una columna no existe
+     */
     private Permiso mapearPermiso(ResultSet rs) throws SQLException {
         Permiso permiso = new Permiso();
         permiso.setIdPermiso(rs.getInt("id_permiso"));
