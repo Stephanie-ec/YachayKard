@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:pt="jakarta.faces.passthrough">
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="titulo">Gestión de estudiantes - YachayKard</ui:define>
+
+    <ui:define name="contenido">
+        <h2 class="mb-3">Gestión de estudiantes</h2>
+
+        <h:messages styleClass="list-unstyled" infoClass="alert alert-success" errorClass="alert alert-danger"/>
+
+        <!-- FORMULARIO: registrar o editar -->
+        <div class="card mb-4">
+            <div class="card-header fw-bold">
+                #{estudianteBean.estudiante.idEstudiante == 0 ? 'Nuevo estudiante' : 'Editar estudiante'}
+            </div>
+            <div class="card-body">
+                <h:form id="formEstudiante">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">DNI *</label>
+                            <h:inputText id="dni" value="#{estudianteBean.estudiante.dni}" styleClass="form-control"
+                                         required="true" requiredMessage="El DNI es obligatorio."
+                                         validatorMessage="El DNI debe tener 8 dígitos.">
+                                <f:validateRegex pattern="[0-9]{8}"/>
+                            </h:inputText>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Nombres *</label>
+                            <h:inputText value="#{estudianteBean.estudiante.nombres}" styleClass="form-control"
+                                         required="true" requiredMessage="Los nombres son obligatorios."/>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label">Apellidos *</label>
+                            <h:inputText value="#{estudianteBean.estudiante.apellidos}" styleClass="form-control"
+                                         required="true" requiredMessage="Los apellidos son obligatorios."/>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Fecha de nacimiento</label>
+                            <h:inputText value="#{estudianteBean.estudiante.fechaNacimiento}" styleClass="form-control"
+                                         pt:type="date" converterMessage="Fecha no válida.">
+                                <f:convertDateTime type="localDate" pattern="yyyy-MM-dd"/>
+                            </h:inputText>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Apoderado *</label>
+                            <h:selectOneMenu value="#{estudianteBean.estudiante.idApoderado}" styleClass="form-select"
+                                             required="true" requiredMessage="Seleccione un apoderado.">
+                                <f:selectItem itemLabel="-- Seleccione --" noSelectionOption="true"/>
+                                <f:selectItems value="#{estudianteBean.apoderados}" var="a"
+                                               itemValue="#{a.idApoderado}" itemLabel="#{a.nombres} (DNI #{a.dni})"/>
+                            </h:selectOneMenu>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">ID SIAGIE</label>
+                            <h:inputText value="#{estudianteBean.estudiante.idSiagie}" styleClass="form-control"/>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Código de estudiante</label>
+                            <h:inputText value="#{estudianteBean.estudiante.codigoEstudiante}" styleClass="form-control"
+                                         validatorMessage="El código de estudiante debe tener 14 dígitos.">
+                                <f:validateRegex pattern="[0-9]{14}"/>
+                            </h:inputText>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h:commandButton value="Guardar" action="#{estudianteBean.guardar}" styleClass="btn btn-primary me-2"/>
+                        <h:commandButton value="Cancelar" action="#{estudianteBean.cancelar}" immediate="true"
+                                         styleClass="btn btn-outline-secondary"/>
+                    </div>
+                </h:form>
+            </div>
+        </div>
+
+        <!-- LISTADO -->
+        <h:form id="formLista">
+            <h:dataTable value="#{estudianteBean.estudiantes}" var="e"
+                         styleClass="table table-striped table-hover align-middle"
+                         rendered="#{not empty estudianteBean.estudiantes}">
+                <h:column>
+                    <f:facet name="header">DNI</f:facet>
+                    #{e.dni}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Apellidos y nombres</f:facet>
+                    #{e.apellidos}, #{e.nombres}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Fecha de nac.</f:facet>
+                    #{e.fechaNacimiento}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Apoderado</f:facet>
+                    #{estudianteBean.nombreApoderado(e.idApoderado)}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Código SIAGIE</f:facet>
+                    #{e.codigoEstudiante}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Acciones</f:facet>
+                    <h:commandButton value="Editar" action="#{estudianteBean.editar(e)}"
+                                     styleClass="btn btn-sm btn-outline-primary me-1"/>
+                    <h:commandButton value="Eliminar" action="#{estudianteBean.eliminar(e.idEstudiante)}"
+                                     styleClass="btn btn-sm btn-outline-danger"
+                                     onclick="return confirm('¿Eliminar este estudiante?');"/>
+                </h:column>
+            </h:dataTable>
+            <h:outputText value="Aún no hay estudiantes registrados." styleClass="text-muted"
+                          rendered="#{empty estudianteBean.estudiantes}"/>
+        </h:form>
+    </ui:define>
+
+</ui:composition>
+</html>
