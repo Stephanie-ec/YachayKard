@@ -11,6 +11,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementación JDBC de {@link RolDAO}.
+ * Cada método abre su conexión con try-with-resources, que la cierra automáticamente.
+ */
 public class RolDAOImpl implements RolDAO {
 
     @Override
@@ -85,6 +89,13 @@ public class RolDAOImpl implements RolDAO {
         return roles;
     }
 
+    /**
+     * Convierte la fila actual del ResultSet en un objeto Rol.
+     *
+     * @param rs resultado posicionado en una fila
+     * @return objeto con los datos de la fila
+     * @throws SQLException si una columna no existe
+     */
     private Rol mapearRol(ResultSet rs) throws SQLException {
         Rol rol = new Rol();
         rol.setIdRol(rs.getInt("id_rol"));
