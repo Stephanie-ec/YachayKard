@@ -2,7 +2,8 @@
 -- Tablas: grado, curso, apoderado, estudiante, seccion, matricula
 -- Ejecutar después de 01_modulo1.sql
 
-USE yachaykard_db;
+USE
+yachaykard_db;
 
 SET
 FOREIGN_KEY_CHECKS = 0;
@@ -27,7 +28,7 @@ CREATE TABLE curso
 (
     id_curso        INT          NOT NULL AUTO_INCREMENT,
     nombre_curso    VARCHAR(100) NOT NULL,
-    horas_semanales INT,
+    horas_semanales INT          NOT NULL,
     codigo_siagie   VARCHAR(20),
     PRIMARY KEY (id_curso)
 ) ENGINE=InnoDB;
@@ -58,7 +59,7 @@ CREATE TABLE seccion
 (
     id_seccion       INT     NOT NULL AUTO_INCREMENT,
     letra            CHAR(1) NOT NULL,
-    aforo            INT,
+    aforo            INT     NOT NULL,
     id_grado         INT     NOT NULL,
     id_docente_tutor INT NULL,
     id_auxiliar      INT NULL,
