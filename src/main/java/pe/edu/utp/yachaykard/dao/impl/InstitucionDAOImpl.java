@@ -11,51 +11,37 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementación JDBC de {@link InstitucionDAO}.
+ * Cada método abre su conexión con try-with-resources, que la cierra automáticamente.
+ */
 public class InstitucionDAOImpl implements InstitucionDAO {
 
     @Override
     public void insertar(Institucion institucion) throws SQLException {
-        String sql = "INSERT INTO institucion (nombre, codigo_modular, nombre_director, direccion, " +
+        String sql = "INSERT INTO institucion (nombre, codigo_modular, nivel, nombre_director, direccion, " +
                 "departamento, provincia, distrito, telefono, correo_electronico) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, institucion.getNombre());
-            ps.setString(2, institucion.getCodigoModular());
-            ps.setString(3, institucion.getNombreDirector());
-            ps.setString(4, institucion.getDireccion());
-            ps.setString(5, institucion.getDepartamento());
-            ps.setString(6, institucion.getProvincia());
-            ps.setString(7, institucion.getDistrito());
-            ps.setString(8, institucion.getTelefono());
-            ps.setString(9, institucion.getCorreoElectronico());
-
+            asignarParametros(ps, institucion);
             ps.executeUpdate();
         }
     }
 
     @Override
     public void actualizar(Institucion institucion) throws SQLException {
-        String sql = "UPDATE institucion SET nombre = ?, codigo_modular = ?, nombre_director = ?, " +
+        String sql = "UPDATE institucion SET nombre = ?, codigo_modular = ?, nivel = ?, nombre_director = ?, " +
                 "direccion = ?, departamento = ?, provincia = ?, distrito = ?, telefono = ?, " +
                 "correo_electronico = ? WHERE id_institucion = ?";
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, institucion.getNombre());
-            ps.setString(2, institucion.getCodigoModular());
-            ps.setString(3, institucion.getNombreDirector());
-            ps.setString(4, institucion.getDireccion());
-            ps.setString(5, institucion.getDepartamento());
-            ps.setString(6, institucion.getProvincia());
-            ps.setString(7, institucion.getDistrito());
-            ps.setString(8, institucion.getTelefono());
-            ps.setString(9, institucion.getCorreoElectronico());
-            ps.setInt(10, institucion.getIdInstitucion());
-
+            asignarParametros(ps, institucion);
+            ps.setInt(11, institucion.getIdInstitucion());
             ps.executeUpdate();
         }
     }
@@ -107,16 +93,44 @@ public class InstitucionDAOImpl implements InstitucionDAO {
         return instituciones;
     }
 
+    /**
+     * Asigna los 10 campos comunes de INSERT y UPDATE, en el mismo orden de las columnas.
+     *
+     * @param ps          sentencia preparada
+     * @param institucion datos de origen
+     * @throws SQLException si falla la asignación de un parámetro
+     */
+    private void asignarParametros(PreparedStatement ps, Institucion institucion) throws SQLException {
+        ps.setString(1, institucion.getNombre());
+        ps.setString(2, institucion.getCodigoModular());
+        ps.setString(3, institucion.getNivel());
+        ps.setString(4, institucion.getNombreDirector());
+        ps.setString(5, institucion.getDireccion());
+        ps.setString(6, institucion.getDepartamento());
+        ps.setString(7, institucion.getProvincia());
+        ps.setString(8, institucion.getDistrito());
+        ps.setString(9, institucion.getTelefono());
+        ps.setString(10, institucion.getCorreoElectronico());
+    }
+
+    /**
+     * Convierte la fila actual del ResultSet en un objeto Institucion.
+     *
+     * @param rs resultado posicionado en una fila
+     * @return institución con los datos de la fila
+     * @throws SQLException si una columna no existe
+     */
     private Institucion mapearInstitucion(ResultSet rs) throws SQLException {
         Institucion institucion = new Institucion();
         institucion.setIdInstitucion(rs.getInt("id_institucion"));
         institucion.setNombre(rs.getString("nombre"));
         institucion.setCodigoModular(rs.getString("codigo_modular"));
+        institucion.setNivel(rs.getString("nivel"));
         institucion.setNombreDirector(rs.getString("nombre_director"));
         institucion.setDireccion(rs.getString("direccion"));
         institucion.setDepartamento(rs.getString("departamento"));
-        institucion.setDistrito(rs.getString("distrito"));
         institucion.setProvincia(rs.getString("provincia"));
+        institucion.setDistrito(rs.getString("distrito"));
         institucion.setTelefono(rs.getString("telefono"));
         institucion.setCorreoElectronico(rs.getString("correo_electronico"));
         return institucion;

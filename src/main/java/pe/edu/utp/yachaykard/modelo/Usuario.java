@@ -2,6 +2,10 @@ package pe.edu.utp.yachaykard.modelo;
 
 import java.io.Serializable;
 
+/**
+ * Cuenta de acceso al sistema. Solo Administrador, Docente y Auxiliar tienen usuario;
+ * el apoderado y el estudiante no inician sesión.
+ */
 public class Usuario implements Serializable {
 
     private int idUsuario;
@@ -10,9 +14,19 @@ public class Usuario implements Serializable {
     private int idRol;
     private int idInstitucion;
 
+    /** Constructor vacío requerido por JSF y por el DAO al mapear filas. */
     public Usuario() {
     }
 
+    /**
+     * Crea un usuario con todos sus datos.
+     *
+     * @param idUsuario     identificador del usuario
+     * @param username      nombre de usuario (único)
+     * @param password      contraseña
+     * @param idRol         rol del usuario
+     * @param idInstitucion institución a la que pertenece
+     */
     public Usuario(int idUsuario, String username, String password, int idRol, int idInstitucion) {
         this.idUsuario = idUsuario;
         this.username = username;

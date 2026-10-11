@@ -2,11 +2,14 @@ package pe.edu.utp.yachaykard.modelo;
 
 import java.io.Serializable;
 
+
+/* Datos generales de la institución educativa que usa YachayKard. */
 public class Institucion implements Serializable {
 
     private int idInstitucion;
     private String nombre;
     private String codigoModular;
+    private String nivel;
     private String nombreDirector;
     private String direccion;
     private String departamento;
@@ -15,15 +18,32 @@ public class Institucion implements Serializable {
     private String telefono;
     private String correoElectronico;
 
+    /** Constructor vacío requerido por JSF y por el DAO al mapear filas. */
     public Institucion() {
     }
 
-    public Institucion(int idInstitucion, String nombre, String codigoModular, String nombreDirector,
-                       String direccion, String departamento, String provincia, String distrito,
-                       String telefono, String correoElectronico) {
+    /**
+     * Crea una institución con todos sus datos.
+     *
+     * @param idInstitucion     identificador de la institución
+     * @param nombre            nombre oficial del colegio
+     * @param codigoModular     código modular asignado por el Minedu
+     * @param nivel             nivel educativo (por ejemplo, Secundaria)
+     * @param nombreDirector    nombre del director
+     * @param direccion         dirección del local
+     * @param departamento      departamento
+     * @param provincia         provincia
+     * @param distrito          distrito
+     * @param telefono          teléfono de contacto
+     * @param correoElectronico correo institucional
+     */
+    public Institucion(int idInstitucion, String nombre, String codigoModular, String nivel,
+                       String nombreDirector, String direccion, String departamento, String provincia,
+                       String distrito, String telefono, String correoElectronico) {
         this.idInstitucion = idInstitucion;
         this.nombre = nombre;
         this.codigoModular = codigoModular;
+        this.nivel = nivel;
         this.nombreDirector = nombreDirector;
         this.direccion = direccion;
         this.departamento = departamento;
@@ -55,6 +75,14 @@ public class Institucion implements Serializable {
 
     public void setCodigoModular(String codigoModular) {
         this.codigoModular = codigoModular;
+    }
+
+    public String getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(String nivel) {
+        this.nivel = nivel;
     }
 
     public String getNombreDirector() {
@@ -119,6 +147,7 @@ public class Institucion implements Serializable {
                 "idInstitucion=" + idInstitucion +
                 ", nombre='" + nombre + '\'' +
                 ", codigoModular='" + codigoModular + '\'' +
+                ", nivel='" + nivel + '\'' +
                 '}';
     }
 }
