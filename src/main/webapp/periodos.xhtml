@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:pt="jakarta.faces.passthrough">
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="titulo">Periodos académicos - YachayKard</ui:define>
+
+    <ui:define name="contenido">
+        <h2 class="mb-3">Periodos académicos</h2>
+
+        <h:messages styleClass="list-unstyled" infoClass="alert alert-success" errorClass="alert alert-danger"/>
+
+        <!-- FORMULARIO: registrar o editar -->
+        <div class="card mb-4">
+            <div class="card-header fw-bold">
+                #{periodoBean.periodo.idPeriodo == 0 ? 'Nuevo periodo' : 'Editar periodo'}
+            </div>
+            <div class="card-body">
+                <h:form id="formPeriodo">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Nombre del periodo *</label>
+                            <h:inputText value="#{periodoBean.periodo.nombrePeriodo}" styleClass="form-control"
+                                         pt:placeholder="Ej. I Trimestre"
+                                         required="true" requiredMessage="El nombre del periodo es obligatorio."/>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Tipo *</label>
+                            <h:selectOneMenu value="#{periodoBean.periodo.tipo}" styleClass="form-select"
+                                             required="true" requiredMessage="Seleccione el tipo de periodo.">
+                                <f:selectItem itemLabel="-- Seleccione --" noSelectionOption="true"/>
+                                <f:selectItem itemValue="Bimestre" itemLabel="Bimestre"/>
+                                <f:selectItem itemValue="Trimestre" itemLabel="Trimestre"/>
+                            </h:selectOneMenu>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Fecha de inicio *</label>
+                            <h:inputText value="#{periodoBean.periodo.fechaInicio}" styleClass="form-control"
+                                         pt:type="date" required="true"
+                                         requiredMessage="La fecha de inicio es obligatoria."
+                                         converterMessage="Fecha de inicio no válida.">
+                                <f:convertDateTime type="localDate" pattern="yyyy-MM-dd"/>
+                            </h:inputText>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Fecha de fin *</label>
+                            <h:inputText value="#{periodoBean.periodo.fechaFin}" styleClass="form-control"
+                                         pt:type="date" required="true"
+                                         requiredMessage="La fecha de fin es obligatoria."
+                                         converterMessage="Fecha de fin no válida.">
+                                <f:convertDateTime type="localDate" pattern="yyyy-MM-dd"/>
+                            </h:inputText>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h:commandButton value="Guardar" action="#{periodoBean.guardar}"
+                                         styleClass="btn btn-primary me-2"/>
+                        <h:commandButton value="Cancelar" action="#{periodoBean.cancelar}" immediate="true"
+                                         styleClass="btn btn-outline-secondary"/>
+                    </div>
+                </h:form>
+            </div>
+        </div>
+
+        <!-- LISTADO -->
+        <h:form id="formLista">
+            <h:dataTable value="#{periodoBean.periodos}" var="p"
+                         styleClass="table table-striped table-hover align-middle"
+                         rendered="#{not empty periodoBean.periodos}">
+                <h:column>
+                    <f:facet name="header">Periodo</f:facet>
+                    #{p.nombrePeriodo}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Tipo</f:facet>
+                    #{p.tipo}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Inicio</f:facet>
+                    #{p.fechaInicio}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Fin</f:facet>
+                    #{p.fechaFin}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Estado</f:facet>
+                    <span class="badge #{p.estado == 'Abierto' ? 'bg-success' : 'bg-secondary'}">#{p.estado}</span>
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Acciones</f:facet>
+                    <h:commandButton value="Cerrar" action="#{periodoBean.cerrar(p.idPeriodo)}"
+                                     rendered="#{p.estado == 'Abierto'}"
+                                     styleClass="btn btn-sm btn-outline-warning me-1"
+                                     onclick="return confirm('Al cerrar el periodo ya no se podrán editar sus calificaciones. ¿Continuar?');"/>
+                    <h:commandButton value="Abrir" action="#{periodoBean.abrir(p.idPeriodo)}"
+                                     rendered="#{p.estado != 'Abierto'}"
+                                     styleClass="btn btn-sm btn-outline-success me-1"/>
+                    <h:commandButton value="Editar" action="#{periodoBean.editar(p)}"
+                                     styleClass="btn btn-sm btn-outline-primary me-1"/>
+                    <h:commandButton value="Eliminar" action="#{periodoBean.eliminar(p.idPeriodo)}"
+                                     styleClass="btn btn-sm btn-outline-danger"
+                                     onclick="return confirm('¿Eliminar este periodo?');"/>
+                </h:column>
+            </h:dataTable>
+            <h:outputText value="Aún no hay periodos registrados." styleClass="text-muted"
+                          rendered="#{empty periodoBean.periodos}"/>
+        </h:form>
+    </ui:define>
+
+</ui:composition>
+</html>
