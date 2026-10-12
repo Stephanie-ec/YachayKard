@@ -77,6 +77,49 @@ public class CalificacionDAOImpl implements CalificacionDAO {
     }
 
     @Override
+    public void registrarNota(Calificacion calificacion) throws SQLException {
+        String sql = "INSERT INTO calificacion (id_estudiante, id_competencia, id_periodo, observacion, mes, "
+                + "nivel_mensual, fortaleza, debilidad, conclusion_descriptiva) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) AS nueva "
+                + "ON DUPLICATE KEY UPDATE observacion = nueva.observacion, nivel_mensual = nueva.nivel_mensual, "
+                + "fortaleza = nueva.fortaleza, debilidad = nueva.debilidad, "
+                + "conclusion_descriptiva = nueva.conclusion_descriptiva";
+
+        try (Connection con = ConexionBD.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            asignarParametros(ps, calificacion);
+            ps.executeUpdate();
+        }
+    }
+
+    @Override
+    public List<Calificacion> listarPorSeccion(int idSeccion, int idCompetencia, int idPeriodo, int mes)
+            throws SQLException {
+        String sql = "SELECT c.* FROM calificacion c "
+                + "JOIN matricula m ON m.id_estudiante = c.id_estudiante "
+                + "WHERE m.id_seccion = ? AND m.estado = 'Activa' "
+                + "AND c.id_competencia = ? AND c.id_periodo = ? AND c.mes = ?";
+        List<Calificacion> lista = new ArrayList<>();
+
+        try (Connection con = ConexionBD.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idSeccion);
+            ps.setInt(2, idCompetencia);
+            ps.setInt(3, idPeriodo);
+            ps.setInt(4, mes);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearCalificacion(rs));
+                }
+            }
+        }
+        return lista;
+    }
+
+    @Override
     public List<Calificacion> listarPorEstudiante(int idEstudiante) throws SQLException {
         return consultar("SELECT * FROM calificacion WHERE id_estudiante = ? ORDER BY id_periodo, mes", idEstudiante);
     }

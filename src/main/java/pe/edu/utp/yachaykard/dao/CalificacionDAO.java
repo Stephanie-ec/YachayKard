@@ -52,14 +52,28 @@ public interface CalificacionDAO {
     List<Calificacion> listarTodos() throws SQLException;
 
     /**
-     * Registra el nivel de logro mensual de un estudiante (método registrarNota() del diagrama de clases).
+     * Registra o actualiza el nivel de logro mensual de un estudiante
+     * (método registrarNota() del diagrama de clases).
+     * Si ya existe una calificación para el mismo estudiante, competencia, periodo y mes
+     * (restricción única), la actualiza en lugar de crear otra. Así funciona el guardado automático por fila.
      *
      * @param calificacion datos a registrar
      * @throws SQLException si ocurre un error en la base de datos
      */
-    default void registrarNota(Calificacion calificacion) throws SQLException {
-        insertar(calificacion);
-    }
+    void registrarNota(Calificacion calificacion) throws SQLException;
+
+    /**
+     * Lista las calificaciones de una competencia, periodo y mes para los estudiantes
+     * con matrícula activa en una sección (pantalla Registro de calificaciones).
+     *
+     * @param idSeccion      sección
+     * @param idCompetencia  competencia evaluada
+     * @param idPeriodo      periodo
+     * @param mes            mes (1 a 12)
+     * @return calificaciones encontradas
+     * @throws SQLException si ocurre un error en la base de datos
+     */
+    List<Calificacion> listarPorSeccion(int idSeccion, int idCompetencia, int idPeriodo, int mes) throws SQLException;
 
     /**
      * Lista las calificaciones de un estudiante (se usa en el historial).
