@@ -78,4 +78,16 @@ public interface ReporteCierreDAO {
      * @throws SQLException si ocurre un error en la base de datos
      */
     List<ReporteCierre> listarPorEstudiante(int idEstudiante) throws SQLException;
+
+    /**
+     * Indica si el docente ya cerró el registro de un estudiante en una competencia y periodo.
+     * La pantalla de calificaciones lo usa para bloquear la edición.
+     *
+     * @param idEstudiante  estudiante
+     * @param idCompetencia competencia
+     * @param idPeriodo     periodo
+     * @return true si existe un reporte de cierre con estado "Cerrado"
+     * @throws SQLException si ocurre un error en la base de datos
+     */
+    boolean estaCerrado(int idEstudiante, int idCompetencia, int idPeriodo) throws SQLException;
 }
