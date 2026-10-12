@@ -94,6 +94,24 @@ public class ReporteCierreDAOImpl implements ReporteCierreDAO {
         return consultar("SELECT * FROM reporte_cierre WHERE id_estudiante = ? ORDER BY id_periodo", idEstudiante);
     }
 
+    @Override
+    public boolean estaCerrado(int idEstudiante, int idCompetencia, int idPeriodo) throws SQLException {
+        String sql = "SELECT 1 FROM reporte_cierre WHERE id_estudiante = ? AND id_competencia = ? "
+                + "AND id_periodo = ? AND estado = 'Cerrado'";
+
+        try (Connection con = ConexionBD.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idEstudiante);
+            ps.setInt(2, idCompetencia);
+            ps.setInt(3, idPeriodo);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
     /**
      * Ejecuta una consulta con un único parámetro entero y devuelve las filas mapeadas.
      *
