@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="titulo">Registro de calificaciones - YachayKard</ui:define>
+
+    <ui:define name="contenido">
+        <h2 class="mb-3">Registro de calificaciones</h2>
+
+        <h:form id="formCalificaciones">
+            <h:messages id="mensajes" styleClass="list-unstyled" infoClass="alert alert-success"
+                        warnClass="alert alert-warning" errorClass="alert alert-danger"/>
+
+            <!-- BARRA DE CONTEXTO -->
+            <div class="card mb-3">
+                <div class="card-body row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Curso – sección</label>
+                        <h:selectOneMenu value="#{calificacionBean.idAsignacion}" styleClass="form-select">
+                            <f:selectItem itemValue="0" itemLabel="-- Seleccione --"/>
+                            <f:selectItems value="#{calificacionBean.asignaciones}" var="a"
+                                           itemValue="#{a.valor}" itemLabel="#{a.etiqueta}"/>
+                            <f:ajax listener="#{calificacionBean.cambiarAsignacion}" render="@form"/>
+                        </h:selectOneMenu>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Competencia</label>
+                        <h:selectOneMenu value="#{calificacionBean.idCompetencia}" styleClass="form-select">
+                            <f:selectItem itemValue="0" itemLabel="-- Seleccione --"/>
+                            <f:selectItems value="#{calificacionBean.competencias}" var="c"
+                                           itemValue="#{c.idCompetencia}" itemLabel="#{c.codigo} – #{c.descripcion}"/>
+                            <f:ajax listener="#{calificacionBean.cargarFilas}" render="@form"/>
+                        </h:selectOneMenu>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Periodo</label>
+                        <h:selectOneMenu value="#{calificacionBean.idPeriodo}" styleClass="form-select">
+                            <f:selectItem itemValue="0" itemLabel="-- Seleccione --"/>
+                            <f:selectItems value="#{calificacionBean.periodos}" var="p"
+                                           itemValue="#{p.idPeriodo}" itemLabel="#{p.nombrePeriodo}"/>
+                            <f:ajax listener="#{calificacionBean.cambiarPeriodo}" render="@form"/>
+                        </h:selectOneMenu>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Mes</label>
+                        <h:selectOneMenu value="#{calificacionBean.mes}" styleClass="form-select">
+                            <f:selectItem itemValue="0" itemLabel="--"/>
+                            <f:selectItems value="#{calificacionBean.meses}" var="m"
+                                           itemValue="#{m.valor}" itemLabel="#{m.etiqueta}"/>
+                            <f:ajax listener="#{calificacionBean.cargarFilas}" render="@form"/>
+                        </h:selectOneMenu>
+                    </div>
+                </div>
+            </div>
+
+            <h:panelGroup rendered="#{not empty calificacionBean.filas}">
+                <h:panelGroup rendered="#{calificacionBean.periodoCerrado}" layout="block"
+                              styleClass="alert alert-secondary">
+                    Periodo cerrado: las calificaciones no se pueden editar.
+                </h:panelGroup>
+
+                <!-- AVANCE -->
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <strong>#{calificacionBean.calificados} / #{calificacionBean.filas.size()} calificados</strong>
+                    <div class="progress flex-grow-1" style="height: 10px;">
+                        <div class="progress-bar bg-success" style="width: #{calificacionBean.porcentaje}%;"></div>
+                    </div>
+                    <div class="form-check">
+                        <h:selectBooleanCheckbox id="pendientes" value="#{calificacionBean.soloPendientes}"
+                                                 styleClass="form-check-input">
+                            <f:ajax render="@form"/>
+                        </h:selectBooleanCheckbox>
+                        <h:outputLabel for="pendientes" value="Mostrar solo pendientes" styleClass="form-check-label"/>
+                    </div>
+                </div>
+
+                <!-- TABLA: un nivel por estudiante; cada cambio se guarda solo (AJAX) -->
+                <h:dataTable value="#{calificacionBean.filasVisibles}" var="fila"
+                             styleClass="table table-hover align-middle">
+                    <h:column>
+                        <f:facet name="header">N°</f:facet>
+                        #{fila.orden}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Estudiante</f:facet>
+                        #{fila.nombreCompleto}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Nivel</f:facet>
+                        <h:selectOneMenu value="#{fila.nivel}" styleClass="#{calificacionBean.claseNivel(fila.nivel)}"
+                                         disabled="#{fila.bloqueada}">
+                            <f:selectItem itemValue="" itemLabel="--"/>
+                            <f:selectItem itemValue="AD" itemLabel="AD"/>
+                            <f:selectItem itemValue="A" itemLabel="A"/>
+                            <f:selectItem itemValue="B" itemLabel="B"/>
+                            <f:selectItem itemValue="C" itemLabel="C"/>
+                            <f:ajax listener="#{calificacionBean.guardarFila(fila)}" render="@form"/>
+                        </h:selectOneMenu>
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Fortaleza</f:facet>
+                        <h:selectOneMenu value="#{fila.fortaleza}" styleClass="form-select form-select-sm"
+                                         disabled="#{fila.bloqueada}">
+                            <f:selectItem itemValue="" itemLabel="(opcional)"/>
+                            <f:selectItems value="#{calificacionBean.fortalezas}"/>
+                            <f:ajax listener="#{calificacionBean.guardarFila(fila)}" render="@form"/>
+                        </h:selectOneMenu>
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Debilidad</f:facet>
+                        <h:selectOneMenu value="#{fila.debilidad}"
+                                         styleClass="form-select form-select-sm #{fila.faltaDebilidad ? 'border-danger' : ''}"
+                                         disabled="#{fila.bloqueada}">
+                            <f:selectItem itemValue="" itemLabel="(obligatoria en B y C)"/>
+                            <f:selectItems value="#{calificacionBean.debilidades}"/>
+                            <f:ajax listener="#{calificacionBean.guardarFila(fila)}" render="@form"/>
+                        </h:selectOneMenu>
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Estado</f:facet>
+                        <span class="badge #{fila.bloqueada ? 'bg-secondary' : (fila.guardada ? 'bg-success' : (fila.faltaDebilidad ? 'bg-danger' : 'bg-light text-dark'))}">#{fila.estado}</span>
+                    </h:column>
+                </h:dataTable>
+            </h:panelGroup>
+
+            <h:outputText value="Seleccione curso – sección, competencia, periodo y mes para ver la lista."
+                          styleClass="text-muted" rendered="#{empty calificacionBean.filas}"/>
+        </h:form>
+    </ui:define>
+
+</ui:composition>
+</html>
