@@ -10,21 +10,53 @@
 </h:head>
 <h:body>
 
-    <!-- HEADER -->
+    <!-- BARRA SUPERIOR: colegio · usuario · rol · cerrar sesión -->
     <nav class="navbar navbar-dark bg-dark px-3">
-        <span class="navbar-brand mb-0 h1">YachayKard</span>
+        <a class="navbar-brand mb-0 h1" href="#{request.contextPath}/index.xhtml">YachayKard</a>
+        <h:form id="formSesion" styleClass="d-flex align-items-center gap-3 text-white small">
+            <span>#{sesionBean.institucion}</span>
+            <span>·</span>
+            <span>#{sesionBean.username}</span>
+            <span>·</span>
+            <span class="badge bg-secondary">#{sesionBean.rol}</span>
+            <h:commandLink value="Cerrar sesión" action="#{sesionBean.cerrarSesion}"
+                           styleClass="btn btn-outline-light btn-sm"/>
+        </h:form>
     </nav>
 
     <div class="container-fluid">
         <div class="row">
 
-            <!-- SIDEBAR -->
+            <!-- MENÚ LATERAL SEGÚN ROL -->
             <nav class="col-md-2 bg-light vh-100 p-3">
-                <ui:insert name="sidebar">
-                    <ul class="nav flex-column">
-                        <li class="nav-item"><a class="nav-link" href="#">Inicio</a></li>
-                    </ul>
-                </ui:insert>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#{request.contextPath}/index.xhtml">Panel principal</a>
+                    </li>
+
+                    <ui:fragment rendered="#{sesionBean.administrador}">
+                        <li class="nav-item mt-3 text-muted small text-uppercase">Administración</li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#{request.contextPath}/institucion.xhtml">Institución</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#{request.contextPath}/estudiantes.xhtml">Estudiantes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#{request.contextPath}/periodos.xhtml">Periodos académicos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#{request.contextPath}/catalogoIncidencias.xhtml">Catálogo de incidencias</a>
+                        </li>
+                    </ui:fragment>
+
+                    <ui:fragment rendered="#{sesionBean.administrador or sesionBean.docente}">
+                        <li class="nav-item mt-3 text-muted small text-uppercase">Académico</li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#{request.contextPath}/calificaciones.xhtml">Calificaciones</a>
+                        </li>
+                    </ui:fragment>
+                </ul>
             </nav>
 
             <!-- CONTENIDO -->
