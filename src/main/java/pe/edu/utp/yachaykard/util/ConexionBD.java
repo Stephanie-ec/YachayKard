@@ -21,6 +21,11 @@ public class ConexionBD {
     private static final Properties CONFIG = new Properties();
 
     static {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("No se encontró el driver de MySQL.", e);
+        }
         try (InputStream entrada = ConexionBD.class.getClassLoader().getResourceAsStream(ARCHIVO)) {
             if (entrada == null) {
                 throw new IllegalStateException("No se encontró " + ARCHIVO

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:pt="jakarta.faces.passthrough">
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="titulo">Datos de la institución - YachayKard</ui:define>
+
+    <ui:define name="contenido">
+        <h2 class="mb-3">Datos de la institución</h2>
+
+        <h:messages styleClass="list-unstyled" infoClass="alert alert-success" errorClass="alert alert-danger"/>
+
+        <div class="card">
+            <div class="card-body">
+                <h:form id="formInstitucion">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label">Nombre de la institución *</label>
+                            <h:inputText value="#{institucionBean.institucion.nombre}" styleClass="form-control"
+                                         required="true" requiredMessage="El nombre es obligatorio."/>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Código modular *</label>
+                            <h:inputText value="#{institucionBean.institucion.codigoModular}" styleClass="form-control"
+                                         pt:maxlength="7" pt:placeholder="7 dígitos"
+                                         required="true" requiredMessage="El código modular es obligatorio."/>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Nivel *</label>
+                            <h:selectOneMenu value="#{institucionBean.institucion.nivel}" styleClass="form-select"
+                                             required="true" requiredMessage="Seleccione el nivel.">
+                                <f:selectItems value="#{institucionBean.niveles}"/>
+                            </h:selectOneMenu>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Director(a)</label>
+                            <h:inputText value="#{institucionBean.institucion.nombreDirector}" styleClass="form-control"/>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Dirección</label>
+                            <h:inputText value="#{institucionBean.institucion.direccion}" styleClass="form-control"/>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Departamento</label>
+                            <h:inputText value="#{institucionBean.institucion.departamento}" styleClass="form-control"/>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Provincia</label>
+                            <h:inputText value="#{institucionBean.institucion.provincia}" styleClass="form-control"/>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Distrito</label>
+                            <h:inputText value="#{institucionBean.institucion.distrito}" styleClass="form-control"/>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Teléfono</label>
+                            <h:inputText value="#{institucionBean.institucion.telefono}" styleClass="form-control"
+                                         pt:maxlength="15"/>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label">Correo electrónico</label>
+                            <h:inputText value="#{institucionBean.institucion.correoElectronico}" styleClass="form-control"
+                                         pt:type="email"/>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h:commandButton value="Guardar cambios" action="#{institucionBean.guardar}"
+                                         styleClass="btn btn-primary"/>
+                    </div>
+                </h:form>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+</html>
