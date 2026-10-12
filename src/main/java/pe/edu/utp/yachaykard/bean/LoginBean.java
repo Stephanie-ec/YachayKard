@@ -56,7 +56,7 @@ public class LoginBean {
 
             return "/index.xhtml?faces-redirect=true";
         } catch (SQLException e) {
-            mensaje("No se pudo conectar con la base de datos.");
+            mensaje("No se pudo conectar con la base de datos: " + e.getMessage());
             return null;
         }
     }
