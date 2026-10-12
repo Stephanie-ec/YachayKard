@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:ui="jakarta.faces.facelets">
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="titulo">Historial del estudiante - YachayKard</ui:define>
+
+    <ui:define name="contenido">
+        <h2 class="mb-1">Historial del estudiante</h2>
+        <p class="text-muted mb-3">Los datos se obtienen de los servicios REST de historial y riesgo.</p>
+
+        <h:messages styleClass="list-unstyled" errorClass="alert alert-danger"/>
+
+        <div class="row g-3 align-items-end mb-4" id="historial" data-api="#{request.contextPath}/api">
+            <div class="col-md-6">
+                <label class="form-label" for="selEstudiante">Estudiante</label>
+                <select id="selEstudiante" class="form-select">
+                    <option value="">-- Seleccione --</option>
+                    <ui:repeat value="#{historialBean.estudiantes}" var="e">
+                        <option value="#{e.idEstudiante}">#{e.apellidos}, #{e.nombres} (DNI #{e.dni})</option>
+                    </ui:repeat>
+                </select>
+            </div>
+            <div class="col-md-6 text-muted small">
+                <h:outputText value="No tiene estudiantes asignados." rendered="#{empty historialBean.estudiantes}"/>
+            </div>
+        </div>
+
+        <div id="mensaje" class="alert d-none"></div>
+
+        <div id="contenidoHistorial" class="d-none">
+            <!-- RIESGO -->
+            <div class="card mb-4">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div>
+                        <div class="text-muted small">Riesgo de deserción</div>
+                        <span id="riesgoNivel" class="badge fs-6">-</span>
+                    </div>
+                    <div>
+                        <div id="riesgoMotivo"></div>
+                        <div id="riesgoFecha" class="text-muted small"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CALIFICACIONES -->
+            <h4>Calificaciones</h4>
+            <div class="table-responsive mb-4">
+                <table class="table table-sm table-striped align-middle">
+                    <thead class="table-light">
+                    <tr><th>Periodo</th><th>Mes</th><th>Curso</th><th>Competencia</th><th>Nivel</th><th>Conclusión</th></tr>
+                    </thead>
+                    <tbody id="tablaCalificaciones"></tbody>
+                </table>
+            </div>
+
+            <!-- ASISTENCIA -->
+            <h4>Asistencia</h4>
+            <p id="resumenAsistencia" class="text-muted"></p>
+            <div class="table-responsive mb-4">
+                <table class="table table-sm table-striped">
+                    <thead class="table-light">
+                    <tr><th>Fecha</th><th>Estado</th><th>Justificada</th></tr>
+                    </thead>
+                    <tbody id="tablaAsistencias"></tbody>
+                </table>
+            </div>
+
+            <!-- INCIDENCIAS -->
+            <h4>Incidencias</h4>
+            <div class="table-responsive">
+                <table class="table table-sm table-striped">
+                    <thead class="table-light">
+                    <tr><th>Fecha</th><th>Tipo</th><th>Gravedad</th><th>Acción tomada</th><th>Descripción</th></tr>
+                    </thead>
+                    <tbody id="tablaIncidencias"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <script>
+            //<![CDATA[
+            (function () {
+                var api = document.getElementById('historial').dataset.api;
+                var selector = document.getElementById('selEstudiante');
+                var mensaje = document.getElementById('mensaje');
+                var contenido = document.getElementById('contenidoHistorial');
+                var COLOR_RIESGO = {Alto: 'bg-danger', Medio: 'bg-warning text-dark', Bajo: 'bg-success'};
+
+                function mostrarMensaje(texto, tipo) {
+                    mensaje.textContent = texto;
+                    mensaje.className = 'alert alert-' + tipo;
+                    contenido.classList.add('d-none');
+                }
+
+                function pedir(ruta) {
+                    return fetch(api + ruta, {headers: {'Accept': 'application/json'}})
+                        .then(function (r) {
+                            return r.json().then(function (datos) {
+                                if (!r.ok) {
+                                    throw new Error(r.status + ': ' + (datos.mensaje || 'Error'));
+                                }
+                                return datos;
+                            });
+                        });
+                }
+
+                function llenarTabla(idTabla, filas, columnas, textoVacio) {
+                    var tbody = document.getElementById(idTabla);
+                    tbody.innerHTML = '';
+                    if (filas.length === 0) {
+                        var tr = tbody.insertRow();
+                        var td = tr.insertCell();
+                        td.colSpan = columnas.length;
+                        td.className = 'text-muted';
+                        td.textContent = textoVacio;
+                        return;
+                    }
+                    filas.forEach(function (fila) {
+                        var tr = tbody.insertRow();
+                        columnas.forEach(function (col) {
+                            tr.insertCell().textContent = col(fila);
+                        });
+                    });
+                }
+
+                function mostrar(historial, riesgo) {
+                    var nivel = document.getElementById('riesgoNivel');
+                    nivel.textContent = riesgo.nivelRiesgo;
+                    nivel.className = 'badge fs-6 ' + (COLOR_RIESGO[riesgo.nivelRiesgo] || 'bg-secondary');
+                    document.getElementById('riesgoMotivo').textContent = riesgo.motivo || '';
+                    document.getElementById('riesgoFecha').textContent =
+                        riesgo.fechaCalculo ? 'Calculado el ' + riesgo.fechaCalculo : '';
+
+                    llenarTabla('tablaCalificaciones', historial.calificaciones, [
+                        function (c) { return c.periodo; },
+                        function (c) { return c.mes; },
+                        function (c) { return c.curso; },
+                        function (c) { return c.competencia; },
+                        function (c) { return c.nivel; },
+                        function (c) { return c.conclusion || ''; }
+                    ], 'Sin calificaciones registradas.');
+
+                    var asis = historial.asistencias;
+                    var partes = Object.keys(asis.resumen).map(function (estado) {
+                        return estado + ': ' + asis.resumen[estado];
+                    });
+                    document.getElementById('resumenAsistencia').textContent =
+                        'Total de registros: ' + asis.total + (partes.length ? ' · ' + partes.join(' · ') : '');
+                    llenarTabla('tablaAsistencias', asis.registros, [
+                        function (a) { return a.fecha; },
+                        function (a) { return a.estado; },
+                        function (a) { return a.justificada ? 'Sí' : 'No'; }
+                    ], 'Sin registros de asistencia.');
+
+                    llenarTabla('tablaIncidencias', historial.incidencias, [
+                        function (i) { return i.fecha; },
+                        function (i) { return i.tipo; },
+                        function (i) { return i.gravedad; },
+                        function (i) { return i.accionTomada; },
+                        function (i) { return i.descripcion || ''; }
+                    ], 'Sin incidencias registradas.');
+
+                    mensaje.className = 'alert d-none';
+                    contenido.classList.remove('d-none');
+                }
+
+                selector.addEventListener('change', function () {
+                    var id = selector.value;
+                    if (!id) {
+                        contenido.classList.add('d-none');
+                        return;
+                    }
+                    mostrarMensaje('Cargando...', 'secondary');
+                    Promise.all([pedir('/historial/' + id), pedir('/riesgo/' + id)])
+                        .then(function (r) { mostrar(r[0], r[1]); })
+                        .catch(function (e) { mostrarMensaje(e.message, 'danger'); });
+                });
+            })();
+            //]]>
+        </script>
+    </ui:define>
+
+</ui:composition>
+</html>
