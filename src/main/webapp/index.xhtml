@@ -1,11 +1,52 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
       xmlns:ui="jakarta.faces.facelets">
 <ui:composition template="/WEB-INF/templates/template.xhtml">
-    <ui:define name="titulo">Inicio - YachayKard</ui:define>
+
+    <ui:define name="titulo">Panel principal - YachayKard</ui:define>
+
     <ui:define name="contenido">
-        <h2>Bienvenido a YachayKard</h2>
-        <p>Sistema de gestión académica y administrativa.</p>
+        <h2 class="mb-1">Panel principal</h2>
+        <p class="text-muted mb-4">Bienvenido(a), #{sesionBean.username} (#{sesionBean.rol}).</p>
+
+        <h:messages styleClass="list-unstyled" errorClass="alert alert-danger"/>
+
+        <div class="row g-3">
+            <div class="col-sm-6 col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">Estudiantes registrados</div>
+                        <div class="fs-2 fw-bold">#{panelBean.totalEstudiantes}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">Matrículas activas</div>
+                        <div class="fs-2 fw-bold">#{panelBean.matriculasActivas}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">Periodo abierto</div>
+                        <div class="fs-4 fw-bold">#{panelBean.periodoAbierto}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">Incidencias registradas</div>
+                        <div class="fs-2 fw-bold">#{panelBean.totalIncidencias}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </ui:define>
+
 </ui:composition>
 </html>
