@@ -31,7 +31,25 @@ public class MatriculaDAOImpl implements MatriculaDAO {
     }
 
     @Override
+    public void procesarMatricula(Matricula matricula) throws SQLException {
+        if (existeMatriculaActiva(matricula.getIdEstudiante(), matricula.getAnioLectivo())) {
+            throw new SQLException(mensajeDuplicada(matricula.getAnioLectivo()));
+        }
+        insertar(matricula);
+    }
+
+    @Override
+    public boolean existeMatriculaActiva(int idEstudiante, String anioLectivo) throws SQLException {
+        return contarOtrasActivas(idEstudiante, anioLectivo, 0);
+    }
+
+    @Override
     public void actualizar(Matricula matricula) throws SQLException {
+        if ("Activa".equals(matricula.getEstado())
+                && contarOtrasActivas(matricula.getIdEstudiante(), matricula.getAnioLectivo(),
+                matricula.getIdMatricula())) {
+            throw new SQLException(mensajeDuplicada(matricula.getAnioLectivo()));
+        }
         String sql = "UPDATE matricula SET fecha_matricula = ?, anio_lectivo = ?, estado = ?, id_estudiante = ?, id_seccion = ? WHERE id_matricula = ?";
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -41,6 +59,43 @@ public class MatriculaDAOImpl implements MatriculaDAO {
             ps.setInt(6, matricula.getIdMatricula());
             ps.executeUpdate();
         }
+    }
+
+    /**
+     * Indica si el estudiante tiene otra matrícula "Activa" en el año lectivo, sin contar la indicada.
+     * Al registrar se usa idExcluir = 0 (ninguna); al editar, el id de la matrícula que se modifica.
+     *
+     * @param idEstudiante id del estudiante
+     * @param anioLectivo  año lectivo
+     * @param idExcluir    id de la matrícula que no se cuenta (0 si es nueva)
+     * @return true si existe otra matrícula activa
+     * @throws SQLException si ocurre un error en la base de datos
+     */
+    private boolean contarOtrasActivas(int idEstudiante, String anioLectivo, int idExcluir) throws SQLException {
+        String sql = "SELECT 1 FROM matricula WHERE id_estudiante = ? AND anio_lectivo = ? "
+                + "AND estado = 'Activa' AND id_matricula <> ?";
+
+        try (Connection con = ConexionBD.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idEstudiante);
+            ps.setString(2, anioLectivo);
+            ps.setInt(3, idExcluir);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    /**
+     * Mensaje que se muestra cuando se infringe la regla de una matrícula activa por año.
+     *
+     * @param anioLectivo año lectivo de la matrícula
+     * @return texto para el usuario
+     */
+    private String mensajeDuplicada(String anioLectivo) {
+        return "El estudiante ya tiene una matrícula activa en el año lectivo " + anioLectivo + ".";
     }
 
     @Override
