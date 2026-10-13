@@ -1,4 +1,4 @@
-- YachayKard - Módulo 4: Asistencia, Conducta y Cierre
+-- YachayKard - Módulo 4: Asistencia, Conducta y Cierre
 -- Tablas: tipo_incidencia, justificacion, asistencia, incidencia, notificacion, reporte_cierre
 -- Ejecutar después de 03_modulo3.sql
 
