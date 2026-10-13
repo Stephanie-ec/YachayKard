@@ -79,7 +79,24 @@ public class PeriodoDAOImpl implements PeriodoDAO {
 
     @Override
     public void abrirPeriodo(int idPeriodo) throws SQLException {
-        cambiarEstado(idPeriodo, "Abierto");
+        String cerrarOtros = "UPDATE periodo SET estado = 'Cerrado' WHERE estado = 'Abierto' AND id_periodo <> ?";
+        String abrir = "UPDATE periodo SET estado = 'Abierto' WHERE id_periodo = ?";
+
+        // Las dos actualizaciones van en una transacción: o se aplican ambas o ninguna.
+        try (Connection con = ConexionBD.obtenerConexion()) {
+            con.setAutoCommit(false);
+            try (PreparedStatement ps1 = con.prepareStatement(cerrarOtros);
+                 PreparedStatement ps2 = con.prepareStatement(abrir)) {
+                ps1.setInt(1, idPeriodo);
+                ps1.executeUpdate();
+                ps2.setInt(1, idPeriodo);
+                ps2.executeUpdate();
+                con.commit();
+            } catch (SQLException e) {
+                con.rollback();
+                throw e;
+            }
+        }
     }
 
     @Override

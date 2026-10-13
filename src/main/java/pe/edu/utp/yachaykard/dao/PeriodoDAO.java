@@ -54,6 +54,7 @@ public interface PeriodoDAO {
     /**
      * Abre un periodo para que se puedan registrar calificaciones
      * (método abrirPeriodo() del diagrama de clases).
+     * Solo puede haber un periodo abierto: el que estuviera abierto se cierra (RF-07).
      *
      * @param idPeriodo periodo a abrir
      * @throws SQLException si ocurre un error en la base de datos
