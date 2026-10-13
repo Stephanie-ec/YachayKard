@@ -19,12 +19,13 @@ public class TipoIncidenciaDAOImpl implements TipoIncidenciaDAO {
 
     @Override
     public void insertar(TipoIncidencia tipoIncidencia) throws SQLException {
-        String sql = "INSERT INTO tipo_incidencia (nombre, gravedad_sugerida) VALUES (?, ?)";
+        String sql = "INSERT INTO tipo_incidencia (nombre, gravedad_sugerida, activo) VALUES (?, ?, ?)";
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             asignarParametros(ps, tipoIncidencia);
+            ps.setBoolean(3, tipoIncidencia.isActivo());
             ps.executeUpdate();
         }
     }
@@ -62,7 +63,51 @@ public class TipoIncidenciaDAOImpl implements TipoIncidenciaDAO {
 
     @Override
     public List<TipoIncidencia> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM tipo_incidencia";
+        return listar("SELECT * FROM tipo_incidencia ORDER BY id_tipo_incidencia");
+    }
+
+    @Override
+    public List<TipoIncidencia> listarActivos() throws SQLException {
+        return listar("SELECT * FROM tipo_incidencia WHERE activo = 1 ORDER BY id_tipo_incidencia");
+    }
+
+    @Override
+    public void cambiarEstado(int idTipoIncidencia, boolean activo) throws SQLException {
+        String sql = "UPDATE tipo_incidencia SET activo = ? WHERE id_tipo_incidencia = ?";
+
+        try (Connection con = ConexionBD.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setBoolean(1, activo);
+            ps.setInt(2, idTipoIncidencia);
+            ps.executeUpdate();
+        }
+    }
+
+    @Override
+    public boolean existeNombre(String nombre, int idExcluir) throws SQLException {
+        String sql = "SELECT 1 FROM tipo_incidencia WHERE LOWER(nombre) = LOWER(?) AND id_tipo_incidencia <> ?";
+
+        try (Connection con = ConexionBD.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, nombre.trim());
+            ps.setInt(2, idExcluir);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    /**
+     * Ejecuta una consulta sin parámetros y devuelve las filas mapeadas.
+     *
+     * @param sql consulta a ejecutar
+     * @return registros encontrados
+     * @throws SQLException si ocurre un error en la base de datos
+     */
+    private List<TipoIncidencia> listar(String sql) throws SQLException {
         List<TipoIncidencia> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -125,6 +170,7 @@ public class TipoIncidenciaDAOImpl implements TipoIncidenciaDAO {
         tipoIncidencia.setIdTipoIncidencia(rs.getInt("id_tipo_incidencia"));
         tipoIncidencia.setNombre(rs.getString("nombre"));
         tipoIncidencia.setGravedadSugerida(rs.getString("gravedad_sugerida"));
+        tipoIncidencia.setActivo(rs.getBoolean("activo"));
         return tipoIncidencia;
     }
 }

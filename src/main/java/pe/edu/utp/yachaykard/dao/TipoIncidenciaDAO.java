@@ -60,4 +60,32 @@ public interface TipoIncidenciaDAO {
     default void registrarTipo(TipoIncidencia tipoIncidencia) throws SQLException {
         insertar(tipoIncidencia);
     }
+
+    /**
+     * Activa o desactiva un tipo. Los tipos no se eliminan (RF-22):
+     * uno desactivado deja de ofrecerse al registrar incidencias.
+     *
+     * @param idTipoIncidencia id del tipo
+     * @param activo           true para activar, false para desactivar
+     * @throws SQLException si ocurre un error en la base de datos
+     */
+    void cambiarEstado(int idTipoIncidencia, boolean activo) throws SQLException;
+
+    /**
+     * Lista solo los tipos activos (los que se ofrecen al registrar una incidencia).
+     *
+     * @return tipos activos
+     * @throws SQLException si ocurre un error en la base de datos
+     */
+    List<TipoIncidencia> listarActivos() throws SQLException;
+
+    /**
+     * Indica si ya existe otro tipo con el mismo nombre (sin distinguir mayúsculas).
+     *
+     * @param nombre    nombre a verificar
+     * @param idExcluir id del tipo que se está editando (0 si es nuevo)
+     * @return true si el nombre ya está en uso
+     * @throws SQLException si ocurre un error en la base de datos
+     */
+    boolean existeNombre(String nombre, int idExcluir) throws SQLException;
 }
