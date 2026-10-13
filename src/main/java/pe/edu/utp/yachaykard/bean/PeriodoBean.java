@@ -11,6 +11,7 @@ import pe.edu.utp.yachaykard.modelo.Periodo;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,7 +77,7 @@ public class PeriodoBean implements Serializable {
     public void abrir(int idPeriodo) {
         try {
             periodoDAO().abrirPeriodo(idPeriodo);
-            mensaje(FacesMessage.SEVERITY_INFO, "Periodo abierto.");
+            mensaje(FacesMessage.SEVERITY_INFO, "Periodo abierto. El periodo que estaba abierto se cerró.");
             cargar();
         } catch (SQLException e) {
             mensaje(FacesMessage.SEVERITY_ERROR, "No se pudo abrir el periodo: " + e.getMessage());
@@ -131,11 +132,41 @@ public class PeriodoBean implements Serializable {
     }
 
     /**
-     * @return periodo vacío con estado inicial "Abierto"
+     * Texto del estado que se muestra en la tabla: un periodo cerrado
+     * cuya fecha de inicio aún no llega se muestra como "Por iniciar".
+     *
+     * @param p periodo de la fila
+     * @return Abierto, Cerrado o Por iniciar
+     */
+    public String etiquetaEstado(Periodo p) {
+        if ("Cerrado".equals(p.getEstado()) && p.getFechaInicio() != null
+                && p.getFechaInicio().isAfter(LocalDate.now())) {
+            return "Por iniciar";
+        }
+        return p.getEstado();
+    }
+
+    /**
+     * @param p periodo de la fila
+     * @return clase Bootstrap del badge de estado
+     */
+    public String claseEstado(Periodo p) {
+        switch (etiquetaEstado(p)) {
+            case "Abierto":
+                return "bg-success";
+            case "Por iniciar":
+                return "bg-info text-dark";
+            default:
+                return "bg-secondary";
+        }
+    }
+
+    /**
+     * @return periodo vacío con estado inicial "Cerrado" (se abre luego con "Abrir periodo")
      */
     private Periodo nuevoPeriodo() {
         Periodo p = new Periodo();
-        p.setEstado("Abierto");
+        p.setEstado("Cerrado");
         return p;
     }
 

@@ -88,17 +88,18 @@
                 </h:column>
                 <h:column>
                     <f:facet name="header">Estado</f:facet>
-                    <span class="badge #{p.estado == 'Abierto' ? 'bg-success' : 'bg-secondary'}">#{p.estado}</span>
+                    <span class="badge #{periodoBean.claseEstado(p)}">#{periodoBean.etiquetaEstado(p)}</span>
                 </h:column>
                 <h:column>
                     <f:facet name="header">Acciones</f:facet>
-                    <h:commandButton value="Cerrar" action="#{periodoBean.cerrar(p.idPeriodo)}"
+                    <h:commandButton value="Cerrar periodo" action="#{periodoBean.cerrar(p.idPeriodo)}"
                                      rendered="#{p.estado == 'Abierto'}"
                                      styleClass="btn btn-sm btn-outline-warning me-1"
                                      onclick="return confirm('Al cerrar el periodo ya no se podrán editar sus calificaciones. ¿Continuar?');"/>
-                    <h:commandButton value="Abrir" action="#{periodoBean.abrir(p.idPeriodo)}"
+                    <h:commandButton value="Abrir periodo" action="#{periodoBean.abrir(p.idPeriodo)}"
                                      rendered="#{p.estado != 'Abierto'}"
-                                     styleClass="btn btn-sm btn-outline-success me-1"/>
+                                     styleClass="btn btn-sm btn-outline-success me-1"
+                                     onclick="return confirm('¿Desea abrir este periodo? El periodo que esté abierto se cerrará.');"/>
                     <h:commandButton value="Editar" action="#{periodoBean.editar(p)}"
                                      styleClass="btn btn-sm btn-outline-primary me-1"/>
                     <h:commandButton value="Eliminar" action="#{periodoBean.eliminar(p.idPeriodo)}"
