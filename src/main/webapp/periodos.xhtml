@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:f="jakarta.faces.core"
       xmlns:ui="jakarta.faces.facelets"
@@ -22,14 +22,14 @@
                 <h:form id="formPeriodo">
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <label class="form-label">Nombre del periodo *</label>
-                            <h:inputText value="#{periodoBean.periodo.nombrePeriodo}" styleClass="form-control"
+                            <h:outputLabel for="nombrePeriodo" value="Nombre del periodo *" styleClass="form-label"/>
+                            <h:inputText id="nombrePeriodo" value="#{periodoBean.periodo.nombrePeriodo}" styleClass="form-control"
                                          pt:placeholder="Ej. I Trimestre"
                                          required="true" requiredMessage="El nombre del periodo es obligatorio."/>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label">Tipo *</label>
-                            <h:selectOneMenu value="#{periodoBean.periodo.tipo}" styleClass="form-select"
+                            <h:outputLabel for="tipo" value="Tipo *" styleClass="form-label"/>
+                            <h:selectOneMenu id="tipo" value="#{periodoBean.periodo.tipo}" styleClass="form-select"
                                              required="true" requiredMessage="Seleccione el tipo de periodo.">
                                 <f:selectItem itemLabel="-- Seleccione --" noSelectionOption="true"/>
                                 <f:selectItem itemValue="Bimestre" itemLabel="Bimestre"/>
@@ -37,8 +37,8 @@
                             </h:selectOneMenu>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Fecha de inicio *</label>
-                            <h:inputText value="#{periodoBean.periodo.fechaInicio}" styleClass="form-control"
+                            <h:outputLabel for="fechaInicio" value="Fecha de inicio *" styleClass="form-label"/>
+                            <h:inputText id="fechaInicio" value="#{periodoBean.periodo.fechaInicio}" styleClass="form-control"
                                          pt:type="date" required="true"
                                          requiredMessage="La fecha de inicio es obligatoria."
                                          converterMessage="Fecha de inicio no válida.">
@@ -46,8 +46,8 @@
                             </h:inputText>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Fecha de fin *</label>
-                            <h:inputText value="#{periodoBean.periodo.fechaFin}" styleClass="form-control"
+                            <h:outputLabel for="fechaFin" value="Fecha de fin *" styleClass="form-label"/>
+                            <h:inputText id="fechaFin" value="#{periodoBean.periodo.fechaFin}" styleClass="form-control"
                                          pt:type="date" required="true"
                                          requiredMessage="La fecha de fin es obligatoria."
                                          converterMessage="Fecha de fin no válida.">
