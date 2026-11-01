@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:f="jakarta.faces.core"
       xmlns:ui="jakarta.faces.facelets"
@@ -22,7 +22,7 @@
                 <h:form id="formEstudiante">
                     <div class="row g-3">
                         <div class="col-md-3">
-                            <label class="form-label">DNI *</label>
+                            <h:outputLabel for="dni" value="DNI *" styleClass="form-label"/>
                             <h:inputText id="dni" value="#{estudianteBean.estudiante.dni}" styleClass="form-control"
                                          required="true" requiredMessage="El DNI es obligatorio."
                                          validatorMessage="El DNI debe tener 8 dígitos.">
@@ -30,25 +30,25 @@
                             </h:inputText>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Nombres *</label>
-                            <h:inputText value="#{estudianteBean.estudiante.nombres}" styleClass="form-control"
+                            <h:outputLabel for="nombres" value="Nombres *" styleClass="form-label"/>
+                            <h:inputText id="nombres" value="#{estudianteBean.estudiante.nombres}" styleClass="form-control"
                                          required="true" requiredMessage="Los nombres son obligatorios."/>
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label">Apellidos *</label>
-                            <h:inputText value="#{estudianteBean.estudiante.apellidos}" styleClass="form-control"
+                            <h:outputLabel for="apellidos" value="Apellidos *" styleClass="form-label"/>
+                            <h:inputText id="apellidos" value="#{estudianteBean.estudiante.apellidos}" styleClass="form-control"
                                          required="true" requiredMessage="Los apellidos son obligatorios."/>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Fecha de nacimiento</label>
-                            <h:inputText value="#{estudianteBean.estudiante.fechaNacimiento}" styleClass="form-control"
+                            <h:outputLabel for="fechaNacimiento" value="Fecha de nacimiento" styleClass="form-label"/>
+                            <h:inputText id="fechaNacimiento" value="#{estudianteBean.estudiante.fechaNacimiento}" styleClass="form-control"
                                          pt:type="date" converterMessage="Fecha no válida.">
                                 <f:convertDateTime type="localDate" pattern="yyyy-MM-dd"/>
                             </h:inputText>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Apoderado *</label>
-                            <h:selectOneMenu value="#{estudianteBean.estudiante.idApoderado}" styleClass="form-select"
+                            <h:outputLabel for="apoderado" value="Apoderado *" styleClass="form-label"/>
+                            <h:selectOneMenu id="apoderado" value="#{estudianteBean.estudiante.idApoderado}" styleClass="form-select"
                                              required="true" requiredMessage="Seleccione un apoderado.">
                                 <f:selectItem itemLabel="-- Seleccione --" noSelectionOption="true"/>
                                 <f:selectItems value="#{estudianteBean.apoderados}" var="a"
@@ -56,12 +56,12 @@
                             </h:selectOneMenu>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label">ID SIAGIE</label>
-                            <h:inputText value="#{estudianteBean.estudiante.idSiagie}" styleClass="form-control"/>
+                            <h:outputLabel for="idSiagie" value="ID SIAGIE" styleClass="form-label"/>
+                            <h:inputText id="idSiagie" value="#{estudianteBean.estudiante.idSiagie}" styleClass="form-control"/>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Código de estudiante</label>
-                            <h:inputText value="#{estudianteBean.estudiante.codigoEstudiante}" styleClass="form-control"
+                            <h:outputLabel for="codigoEstudiante" value="Código de estudiante" styleClass="form-label"/>
+                            <h:inputText id="codigoEstudiante" value="#{estudianteBean.estudiante.codigoEstudiante}" styleClass="form-control"
                                          validatorMessage="El código de estudiante debe tener 14 dígitos.">
                                 <f:validateRegex pattern="[0-9]{14}"/>
                             </h:inputText>
@@ -117,3 +117,4 @@
 
 </ui:composition>
 </html>
+
