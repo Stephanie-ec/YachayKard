@@ -18,6 +18,10 @@ import java.util.List;
  */
 public class PeriodoDAOImpl implements PeriodoDAO {
 
+    /** Columnas que se leen de la tabla periodo. */
+    private static final String COLUMNAS =
+            "id_periodo, nombre_periodo, tipo, fecha_inicio, fecha_fin, estado";
+
     @Override
     public void insertar(Periodo periodo) throws SQLException {
         String sql = "INSERT INTO periodo (nombre_periodo, tipo, fecha_inicio, fecha_fin, estado) VALUES (?, ?, ?, ?, ?)";
@@ -57,13 +61,13 @@ public class PeriodoDAOImpl implements PeriodoDAO {
 
     @Override
     public Periodo buscarPorId(int idPeriodo) throws SQLException {
-        List<Periodo> lista = consultar("SELECT * FROM periodo WHERE id_periodo = ?", idPeriodo);
+        List<Periodo> lista = consultar("SELECT " + COLUMNAS + " FROM periodo WHERE id_periodo = ?", idPeriodo);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<Periodo> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM periodo";
+        String sql = "SELECT " + COLUMNAS + " FROM periodo";
         List<Periodo> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
