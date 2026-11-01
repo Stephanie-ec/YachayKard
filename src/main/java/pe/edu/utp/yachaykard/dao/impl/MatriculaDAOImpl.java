@@ -17,6 +17,10 @@ import java.util.List;
  * Cada método abre su conexión con try-with-resources, que la cierra automáticamente.
  */
 public class MatriculaDAOImpl implements MatriculaDAO {
+    
+    /** Columnas que se leen de la tabla matricula. */
+    private static final String COLUMNAS =
+            "id_matricula, fecha_matricula, anio_lectivo, estado, id_estudiante, id_seccion";
 
     @Override
     public void insertar(Matricula matricula) throws SQLException {
@@ -112,13 +116,13 @@ public class MatriculaDAOImpl implements MatriculaDAO {
 
     @Override
     public Matricula buscarPorId(int idMatricula) throws SQLException {
-        List<Matricula> lista = consultar("SELECT * FROM matricula WHERE id_matricula = ?", idMatricula);
+        List<Matricula> lista = consultar("SELECT " + COLUMNAS + " FROM matricula WHERE id_matricula = ?", idMatricula);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<Matricula> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM matricula";
+        String sql = "SELECT " + COLUMNAS + " FROM matricula";
         List<Matricula> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -134,7 +138,7 @@ public class MatriculaDAOImpl implements MatriculaDAO {
 
     @Override
     public List<Matricula> listarPorSeccion(int idSeccion) throws SQLException {
-        return consultar("SELECT * FROM matricula WHERE id_seccion = ?", idSeccion);
+        return consultar("SELECT " + COLUMNAS + " FROM matricula WHERE id_seccion = ?", idSeccion);
     }
 
     /**

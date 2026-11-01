@@ -17,6 +17,10 @@ import java.util.List;
  */
 public class CursoDAOImpl implements CursoDAO {
 
+    /** Columnas que se leen de la tabla curso. */
+    private static final String COLUMNAS =
+            "id_curso, nombre_curso, horas_semanales, codigo_siagie";
+
     @Override
     public void insertar(Curso curso) throws SQLException {
         String sql = "INSERT INTO curso (nombre_curso, horas_semanales, codigo_siagie) VALUES (?, ?, ?)";
@@ -56,13 +60,13 @@ public class CursoDAOImpl implements CursoDAO {
 
     @Override
     public Curso buscarPorId(int idCurso) throws SQLException {
-        List<Curso> lista = consultar("SELECT * FROM curso WHERE id_curso = ?", idCurso);
+        List<Curso> lista = consultar("SELECT " + COLUMNAS + " FROM curso WHERE id_curso = ?", idCurso);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<Curso> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM curso";
+        String sql = "SELECT " + COLUMNAS + " FROM curso";
         List<Curso> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();

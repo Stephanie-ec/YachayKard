@@ -17,6 +17,10 @@ import java.util.List;
  * Cada método abre su conexión con try-with-resources, que la cierra automáticamente.
  */
 public class SeccionDAOImpl implements SeccionDAO {
+    
+    /** Columnas que se leen de la tabla seccion. */
+    private static final String COLUMNAS =
+            "id_seccion, letra, aforo, id_grado, id_docente_tutor, id_auxiliar";
 
     @Override
     public void insertar(Seccion seccion) throws SQLException {
@@ -57,13 +61,13 @@ public class SeccionDAOImpl implements SeccionDAO {
 
     @Override
     public Seccion buscarPorId(int idSeccion) throws SQLException {
-        List<Seccion> lista = consultar("SELECT * FROM seccion WHERE id_seccion = ?", idSeccion);
+        List<Seccion> lista = consultar("SELECT " + COLUMNAS + " FROM seccion WHERE id_seccion = ?", idSeccion);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<Seccion> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM seccion";
+        String sql = "SELECT " + COLUMNAS + " FROM seccion";
         List<Seccion> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -79,7 +83,7 @@ public class SeccionDAOImpl implements SeccionDAO {
 
     @Override
     public List<Seccion> listarPorTutor(int idDocenteTutor) throws SQLException {
-        return consultar("SELECT * FROM seccion WHERE id_docente_tutor = ?", idDocenteTutor);
+        return consultar("SELECT " + COLUMNAS + " FROM seccion WHERE id_docente_tutor = ?", idDocenteTutor);
     }
 
     /**

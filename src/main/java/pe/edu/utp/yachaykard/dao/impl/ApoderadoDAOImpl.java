@@ -17,6 +17,10 @@ import java.util.List;
  */
 public class ApoderadoDAOImpl implements ApoderadoDAO {
 
+    /** Columnas que se leen de la tabla apoderado. */
+    private static final String COLUMNAS =
+            "id_apoderado, dni, nombres, telefono";
+
     @Override
     public void insertar(Apoderado apoderado) throws SQLException {
         String sql = "INSERT INTO apoderado (dni, nombres, telefono) VALUES (?, ?, ?)";
@@ -56,13 +60,13 @@ public class ApoderadoDAOImpl implements ApoderadoDAO {
 
     @Override
     public Apoderado buscarPorId(int idApoderado) throws SQLException {
-        List<Apoderado> lista = consultar("SELECT * FROM apoderado WHERE id_apoderado = ?", idApoderado);
+        List<Apoderado> lista = consultar("SELECT " + COLUMNAS + " FROM apoderado WHERE id_apoderado = ?", idApoderado);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<Apoderado> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM apoderado";
+        String sql = "SELECT " + COLUMNAS + " FROM apoderado";
         List<Apoderado> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
