@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:f="jakarta.faces.core"
       xmlns:ui="jakarta.faces.facelets"
@@ -18,54 +18,54 @@
                 <h:form id="formInstitucion">
                     <div class="row g-3">
                         <div class="col-md-8">
-                            <label class="form-label">Nombre de la institución *</label>
-                            <h:inputText value="#{institucionBean.institucion.nombre}" styleClass="form-control"
+                            <h:outputLabel for="nombreInstitucion" value="Nombre de la institución *" styleClass="form-label"/>
+                            <h:inputText id="nombreInstitucion" value="#{institucionBean.institucion.nombre}" styleClass="form-control"
                                          required="true" requiredMessage="El nombre es obligatorio."/>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label">Código modular *</label>
-                            <h:inputText value="#{institucionBean.institucion.codigoModular}" styleClass="form-control"
+                            <h:outputLabel for="codigoModular" value="Código modular *" styleClass="form-label"/>
+                            <h:inputText id="codigoModular" value="#{institucionBean.institucion.codigoModular}" styleClass="form-control"
                                          pt:maxlength="7" pt:placeholder="7 dígitos"
                                          required="true" requiredMessage="El código modular es obligatorio."/>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label">Nivel *</label>
-                            <h:selectOneMenu value="#{institucionBean.institucion.nivel}" styleClass="form-select"
+                            <h:outputLabel for="nivel" value="Nivel *" styleClass="form-label"/>
+                            <h:selectOneMenu id="nivel" value="#{institucionBean.institucion.nivel}" styleClass="form-select"
                                              required="true" requiredMessage="Seleccione el nivel.">
                                 <f:selectItems value="#{institucionBean.niveles}"/>
                             </h:selectOneMenu>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Director(a)</label>
-                            <h:inputText value="#{institucionBean.institucion.nombreDirector}" styleClass="form-control"/>
+                            <h:outputLabel for="director" value="Director(a)" styleClass="form-label"/>
+                            <h:inputText id="director" value="#{institucionBean.institucion.nombreDirector}" styleClass="form-control"/>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Dirección</label>
-                            <h:inputText value="#{institucionBean.institucion.direccion}" styleClass="form-control"/>
+                            <h:outputLabel for="direccion" value="Dirección" styleClass="form-label"/>
+                            <h:inputText id="direccion" value="#{institucionBean.institucion.direccion}" styleClass="form-control"/>
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">Departamento</label>
-                            <h:inputText value="#{institucionBean.institucion.departamento}" styleClass="form-control"/>
+                            <h:outputLabel for="departamento" value="Departamento" styleClass="form-label"/>
+                            <h:inputText id="departamento" value="#{institucionBean.institucion.departamento}" styleClass="form-control"/>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Provincia</label>
-                            <h:inputText value="#{institucionBean.institucion.provincia}" styleClass="form-control"/>
+                            <h:outputLabel for="provincia" value="Provincia" styleClass="form-label"/>
+                            <h:inputText id="provincia" value="#{institucionBean.institucion.provincia}" styleClass="form-control"/>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Distrito</label>
-                            <h:inputText value="#{institucionBean.institucion.distrito}" styleClass="form-control"/>
+                            <h:outputLabel for="distrito" value="Distrito" styleClass="form-label"/>
+                            <h:inputText id="distrito" value="#{institucionBean.institucion.distrito}" styleClass="form-control"/>
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">Teléfono</label>
-                            <h:inputText value="#{institucionBean.institucion.telefono}" styleClass="form-control"
+                            <h:outputLabel for="telefono" value="Teléfono" styleClass="form-label"/>
+                            <h:inputText id="telefono" value="#{institucionBean.institucion.telefono}" styleClass="form-control"
                                          pt:maxlength="15"/>
                         </div>
                         <div class="col-md-8">
-                            <label class="form-label">Correo electrónico</label>
-                            <h:inputText value="#{institucionBean.institucion.correoElectronico}" styleClass="form-control"
+                            <h:outputLabel for="correoElectronico" value="Correo electrónico" styleClass="form-label"/>
+                            <h:inputText id="correoElectronico" value="#{institucionBean.institucion.correoElectronico}" styleClass="form-control"
                                          pt:type="email"/>
                         </div>
                     </div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:ui="jakarta.faces.facelets">
 <ui:composition template="/WEB-INF/templates/template.xhtml">
@@ -82,11 +82,11 @@
         <script>
             //<![CDATA[
             (function () {
-                var api = document.getElementById('historial').dataset.api;
-                var selector = document.getElementById('selEstudiante');
-                var mensaje = document.getElementById('mensaje');
-                var contenido = document.getElementById('contenidoHistorial');
-                var COLOR_RIESGO = {Alto: 'bg-danger', Medio: 'bg-warning text-dark', Bajo: 'bg-success'};
+                const api = document.getElementById('historial').dataset.api;
+                const selector = document.getElementById('selEstudiante');
+                const mensaje = document.getElementById('mensaje');
+                const contenido = document.getElementById('contenidoHistorial');
+                const COLOR_RIESGO = {Alto: 'bg-danger', Medio: 'bg-warning text-dark', Bajo: 'bg-success'};
 
                 function mostrarMensaje(texto, tipo) {
                     mensaje.textContent = texto;
@@ -107,18 +107,18 @@
                 }
 
                 function llenarTabla(idTabla, filas, columnas, textoVacio) {
-                    var tbody = document.getElementById(idTabla);
+                    const tbody = document.getElementById(idTabla);
                     tbody.innerHTML = '';
                     if (filas.length === 0) {
-                        var tr = tbody.insertRow();
-                        var td = tr.insertCell();
+                        const tr = tbody.insertRow();
+                        const td = tr.insertCell();
                         td.colSpan = columnas.length;
                         td.className = 'text-muted';
                         td.textContent = textoVacio;
                         return;
                     }
                     filas.forEach(function (fila) {
-                        var tr = tbody.insertRow();
+                        const tr = tbody.insertRow();
                         columnas.forEach(function (col) {
                             tr.insertCell().textContent = col(fila);
                         });
@@ -126,7 +126,7 @@
                 }
 
                 function mostrar(historial, riesgo) {
-                    var nivel = document.getElementById('riesgoNivel');
+                    const nivel = document.getElementById('riesgoNivel');
                     nivel.textContent = riesgo.nivelRiesgo;
                     nivel.className = 'badge fs-6 ' + (COLOR_RIESGO[riesgo.nivelRiesgo] || 'bg-secondary');
                     document.getElementById('riesgoMotivo').textContent = riesgo.motivo || '';
@@ -142,8 +142,8 @@
                         function (c) { return c.conclusion || ''; }
                     ], 'Sin calificaciones registradas.');
 
-                    var asis = historial.asistencias;
-                    var partes = Object.keys(asis.resumen).map(function (estado) {
+                    const asis = historial.asistencias;
+                    const partes = Object.keys(asis.resumen).map(function (estado) {
                         return estado + ': ' + asis.resumen[estado];
                     });
                     document.getElementById('resumenAsistencia').textContent =
@@ -167,7 +167,7 @@
                 }
 
                 selector.addEventListener('change', function () {
-                    var id = selector.value;
+                    const id = selector.value;
                     if (!id) {
                         contenido.classList.add('d-none');
                         return;

@@ -12,7 +12,7 @@ import java.util.Properties;
  * Las credenciales se leen desde db.properties, archivo excluido del
  * control de versiones para no exponer contraseñas en GitHub.
  */
-public class ConexionBD {
+public final class ConexionBD {
 
     /** Nombre del archivo de configuración ubicado en src/main/resources. */
     private static final String ARCHIVO = "db.properties";
@@ -35,6 +35,10 @@ public class ConexionBD {
         } catch (IOException e) {
             throw new IllegalStateException("Error al leer " + ARCHIVO, e);
         }
+    }
+
+    private ConexionBD() {
+        // Clase de utilidad: no se instancia.
     }
 
     public static Connection obtenerConexion() throws SQLException {

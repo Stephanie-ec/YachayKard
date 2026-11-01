@@ -15,6 +15,8 @@ import java.util.List;
  * Implementación JDBC de {@link RolPermisoDAO}.
  */
 public class RolPermisoDAOImpl implements RolPermisoDAO {
+    private static final String COLUMNAS =
+            "id_rol, id_permiso";
 
     @Override
     public void insertar(RolPermiso rolPermiso) throws SQLException {
@@ -44,7 +46,7 @@ public class RolPermisoDAOImpl implements RolPermisoDAO {
 
     @Override
     public List<RolPermiso> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM rol_permiso";
+        String sql = "SELECT " + COLUMNAS + " FROM rol_permiso";
         List<RolPermiso> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -60,7 +62,7 @@ public class RolPermisoDAOImpl implements RolPermisoDAO {
 
     @Override
     public List<RolPermiso> listarPorRol(int idRol) throws SQLException {
-        String sql = "SELECT * FROM rol_permiso WHERE id_rol = ?";
+        String sql = "SELECT " + COLUMNAS + " FROM rol_permiso WHERE id_rol = ?";
         List<RolPermiso> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();

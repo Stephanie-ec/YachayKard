@@ -16,6 +16,9 @@ import java.util.List;
  * Cada método abre su conexión con try-with-resources, que la cierra automáticamente.
  */
 public class InstitucionDAOImpl implements InstitucionDAO {
+    /** Columnas que se leen de la tabla institucion. */
+    private static final String COLUMNAS =
+            "id_institucion, nombre, codigo_modular, nivel, nombre_director, direccion, departamento, provincia, distrito, telefono, correo_electronico";
 
     @Override
     public void insertar(Institucion institucion) throws SQLException {
@@ -60,7 +63,7 @@ public class InstitucionDAOImpl implements InstitucionDAO {
 
     @Override
     public Institucion buscarPorId(int idInstitucion) throws SQLException {
-        String sql = "SELECT * FROM institucion WHERE id_institucion = ?";
+        String sql = "SELECT " + COLUMNAS + " FROM institucion WHERE id_institucion = ?";
         Institucion institucion = null;
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -79,7 +82,7 @@ public class InstitucionDAOImpl implements InstitucionDAO {
 
     @Override
     public List<Institucion> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM institucion";
+        String sql = "SELECT " + COLUMNAS + " FROM institucion";
         List<Institucion> instituciones = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();

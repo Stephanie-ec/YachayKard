@@ -5,18 +5,25 @@ import pe.edu.utp.yachaykard.modelo.PrediccionRiesgo;
 import pe.edu.utp.yachaykard.util.ConexionBD;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Implementación JDBC de {@link PrediccionRiesgoDAO}.
- * Convierte LocalDate a DATE con Date.valueOf() y de vuelta con toLocalDate().
+ * Lee y guarda la fecha como LocalDate directamente con getObject() y setObject().
  */
 public class PrediccionRiesgoDAOImpl implements PrediccionRiesgoDAO {
+
+    /** Columnas que se leen de la tabla prediccion_riesgo. */
+    private static final String COLUMNAS =
+            "id_prediccion, id_estudiante, nivel_riesgo, motivo, fecha_calculo";
+
+    /** Inicio común de las consultas de esta tabla. */
+    private static final String CONSULTA_BASE = "SELECT " + COLUMNAS + " FROM prediccion_riesgo";
 
     @Override
     public void insertar(PrediccionRiesgo prediccion) throws SQLException {
@@ -60,13 +67,13 @@ public class PrediccionRiesgoDAOImpl implements PrediccionRiesgoDAO {
     @Override
     public PrediccionRiesgo buscarPorId(int idPrediccion) throws SQLException {
         List<PrediccionRiesgo> lista = consultar(
-                "SELECT * FROM prediccion_riesgo WHERE id_prediccion = ?", idPrediccion);
+                CONSULTA_BASE + " WHERE id_prediccion = ?", idPrediccion);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<PrediccionRiesgo> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM prediccion_riesgo ORDER BY fecha_calculo DESC";
+        String sql = CONSULTA_BASE + " ORDER BY fecha_calculo DESC";
         List<PrediccionRiesgo> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -82,13 +89,13 @@ public class PrediccionRiesgoDAOImpl implements PrediccionRiesgoDAO {
 
     @Override
     public List<PrediccionRiesgo> listarPorEstudiante(int idEstudiante) throws SQLException {
-        return consultar("SELECT * FROM prediccion_riesgo WHERE id_estudiante = ? " +
+        return consultar(CONSULTA_BASE + " WHERE id_estudiante = ? " +
                 "ORDER BY fecha_calculo DESC, id_prediccion DESC", idEstudiante);
     }
 
     @Override
     public PrediccionRiesgo buscarUltimaPorEstudiante(int idEstudiante) throws SQLException {
-        List<PrediccionRiesgo> lista = consultar("SELECT * FROM prediccion_riesgo WHERE id_estudiante = ? " +
+        List<PrediccionRiesgo> lista = consultar(CONSULTA_BASE + " WHERE id_estudiante = ? " +
                 "ORDER BY fecha_calculo DESC, id_prediccion DESC LIMIT 1", idEstudiante);
         return lista.isEmpty() ? null : lista.get(0);
     }
@@ -152,7 +159,7 @@ public class PrediccionRiesgoDAOImpl implements PrediccionRiesgoDAO {
         ps.setInt(1, prediccion.getIdEstudiante());
         ps.setString(2, prediccion.getNivelRiesgo());
         ps.setString(3, prediccion.getMotivo());
-        ps.setDate(4, Date.valueOf(prediccion.getFechaCalculo()));
+        ps.setObject(4, prediccion.getFechaCalculo());
     }
 
     /**
@@ -168,7 +175,7 @@ public class PrediccionRiesgoDAOImpl implements PrediccionRiesgoDAO {
         prediccion.setIdEstudiante(rs.getInt("id_estudiante"));
         prediccion.setNivelRiesgo(rs.getString("nivel_riesgo"));
         prediccion.setMotivo(rs.getString("motivo"));
-        prediccion.setFechaCalculo(rs.getDate("fecha_calculo").toLocalDate());
+        prediccion.setFechaCalculo(rs.getObject("fecha_calculo", LocalDate.class));
         return prediccion;
     }
 }
