@@ -22,7 +22,7 @@ import java.util.Set;
 @WebFilter("*.xhtml")
 public class FiltroSesion implements Filter {
 
-    /** Pantallas restringidas y los roles que pueden abrirlas. Las demás son para todo usuario con sesión. */
+    /** Pantallas restringidas y los roles que pueden abrirlas. Las demás las abre cualquier usuario con sesión. */
     private static final Map<String, Set<String>> PERMISOS = Map.of(
             "/institucion.xhtml", Set.of(DatosSesion.ADMINISTRADOR),
             "/estudiantes.xhtml", Set.of(DatosSesion.ADMINISTRADOR),
@@ -59,7 +59,7 @@ public class FiltroSesion implements Filter {
         }
 
         Set<String> rolesPermitidos = PERMISOS.get(ruta);
-        if (rolesPermitidos != null && !rolesPermitidos.contains((String) sesion.getAttribute(DatosSesion.ROL))) {
+        if (rolesPermitidos != null && !rolesPermitidos.contains(sesion.getAttribute(DatosSesion.ROL))) {
             resp.sendRedirect(contexto + "/index.xhtml");
             return;
         }

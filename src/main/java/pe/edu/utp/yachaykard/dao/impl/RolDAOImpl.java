@@ -16,6 +16,8 @@ import java.util.List;
  * Cada método abre su conexión con try-with-resources, que la cierra automáticamente.
  */
 public class RolDAOImpl implements RolDAO {
+    private static final String COLUMNAS =
+            "id_rol, nombre_rol";
 
     @Override
     public void insertar(Rol rol) throws SQLException {
@@ -56,7 +58,7 @@ public class RolDAOImpl implements RolDAO {
 
     @Override
     public Rol buscarPorId(int idRol) throws SQLException {
-        String sql = "SELECT * FROM rol WHERE id_rol = ?";
+        String sql = "SELECT " + COLUMNAS + " FROM rol WHERE id_rol = ?";
         Rol rol = null;
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -75,7 +77,7 @@ public class RolDAOImpl implements RolDAO {
 
     @Override
     public List<Rol> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM rol";
+        String sql = "SELECT " + COLUMNAS + " FROM rol";
         List<Rol> roles = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();

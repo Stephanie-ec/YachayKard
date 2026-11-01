@@ -16,6 +16,8 @@ import java.util.List;
  * Cada método abre su conexión con try-with-resources, que la cierra automáticamente.
  */
 public class PermisoDAOImpl implements PermisoDAO {
+    private static final String COLUMNAS =
+            "id_permiso, nombre_permiso";
 
     @Override
     public void insertar(Permiso permiso) throws SQLException {
@@ -56,7 +58,7 @@ public class PermisoDAOImpl implements PermisoDAO {
 
     @Override
     public Permiso buscarPorId(int idPermiso) throws SQLException {
-        String sql = "SELECT * FROM permiso WHERE id_permiso = ?";
+        String sql = "SELECT " + COLUMNAS + " FROM permiso WHERE id_permiso = ?";
         Permiso permiso = null;
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -75,7 +77,7 @@ public class PermisoDAOImpl implements PermisoDAO {
 
     @Override
     public List<Permiso> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM permiso";
+        String sql = "SELECT " + COLUMNAS + " FROM permiso";
         List<Permiso> permisos = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();

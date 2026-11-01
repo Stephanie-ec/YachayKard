@@ -16,6 +16,13 @@ import java.util.List;
  */
 public class AuxiliarDAOImpl implements AuxiliarDAO {
 
+    /** Columnas que se leen de la tabla auxiliar. */
+    private static final String COLUMNAS =
+            "id_auxiliar, dni, nombres, apellidos, id_usuario";
+
+    /** Inicio común de las consultas de esta tabla. */
+    private static final String CONSULTA_BASE = "SELECT " + COLUMNAS + " FROM auxiliar";
+
     @Override
     public void insertar(Auxiliar auxiliar) throws SQLException {
         String sql = "INSERT INTO auxiliar (dni, nombres, apellidos, id_usuario) VALUES (?, ?, ?, ?)";
@@ -63,17 +70,17 @@ public class AuxiliarDAOImpl implements AuxiliarDAO {
 
     @Override
     public Auxiliar buscarPorId(int idAuxiliar) throws SQLException {
-        return buscarUno("SELECT * FROM auxiliar WHERE id_auxiliar = ?", idAuxiliar);
+        return buscarUno(CONSULTA_BASE + " WHERE id_auxiliar = ?", idAuxiliar);
     }
 
     @Override
     public Auxiliar buscarPorUsuario(int idUsuario) throws SQLException {
-        return buscarUno("SELECT * FROM auxiliar WHERE id_usuario = ?", idUsuario);
+        return buscarUno(CONSULTA_BASE + " WHERE id_usuario = ?", idUsuario);
     }
 
     @Override
     public List<Auxiliar> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM auxiliar ORDER BY apellidos, nombres";
+        String sql = CONSULTA_BASE + " ORDER BY apellidos, nombres";
         List<Auxiliar> auxiliares = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();

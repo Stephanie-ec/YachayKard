@@ -17,6 +17,13 @@ import java.util.List;
  */
 public class UsuarioDAOImpl implements UsuarioDAO {
 
+    /** Columnas que se leen de la tabla usuario. */
+    private static final String COLUMNAS =
+            "id_usuario, username, password, id_rol, id_institucion";
+
+    /** Inicio común de las consultas de esta tabla. */
+    private static final String CONSULTA_BASE = "SELECT " + COLUMNAS + " FROM usuario";
+
     @Override
     public void insertar(Usuario usuario) throws SQLException {
         String sql = "INSERT INTO usuario (username, password, id_rol, id_institucion) VALUES (?, ?, ?, ?)";
@@ -64,7 +71,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
 
     @Override
     public Usuario buscarPorId(int idUsuario) throws SQLException {
-        String sql = "SELECT * FROM usuario WHERE id_usuario = ?";
+        String sql = CONSULTA_BASE + " WHERE id_usuario = ?";
         Usuario usuario = null;
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -83,7 +90,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
 
     @Override
     public List<Usuario> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM usuario";
+        String sql = CONSULTA_BASE;
         List<Usuario> usuarios = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -99,7 +106,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
 
     @Override
     public Usuario buscarPorUsername(String username) throws SQLException {
-        String sql = "SELECT * FROM usuario WHERE username = ?";
+        String sql = CONSULTA_BASE + " WHERE username = ?";
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {

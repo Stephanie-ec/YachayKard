@@ -3,6 +3,7 @@ package pe.edu.utp.yachaykard.dao.impl;
 import pe.edu.utp.yachaykard.dao.SesionDAO;
 import pe.edu.utp.yachaykard.modelo.Sesion;
 import pe.edu.utp.yachaykard.util.ConexionBD;
+import pe.edu.utp.yachaykard.util.Zona;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,8 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.sql.Types;
 import java.time.LocalDateTime;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +21,10 @@ import java.util.List;
  * Convierte LocalDateTime a DATETIME con Timestamp.valueOf() y de vuelta con toLocalDateTime().
  */
 public class SesionDAOImpl implements SesionDAO {
+
+    /** Columnas que se leen de la tabla sesion. */
+    private static final String COLUMNAS =
+            "id_sesion, fecha_inicio, fecha_fin, id_usuario";
 
     @Override
     public void insertar(Sesion sesion) throws SQLException {
@@ -66,7 +71,7 @@ public class SesionDAOImpl implements SesionDAO {
 
     @Override
     public Sesion buscarPorId(int idSesion) throws SQLException {
-        String sql = "SELECT * FROM sesion WHERE id_sesion = ?";
+        String sql = "SELECT " + COLUMNAS + " FROM sesion WHERE id_sesion = ?";
         Sesion sesion = null;
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -85,7 +90,7 @@ public class SesionDAOImpl implements SesionDAO {
 
     @Override
     public List<Sesion> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM sesion";
+        String sql = "SELECT " + COLUMNAS + " FROM sesion";
         List<Sesion> sesiones = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -106,7 +111,7 @@ public class SesionDAOImpl implements SesionDAO {
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setTimestamp(1, Timestamp.valueOf(Zona.ahora()));
             ps.setInt(2, idUsuario);
             ps.executeUpdate();
 
@@ -126,7 +131,7 @@ public class SesionDAOImpl implements SesionDAO {
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setTimestamp(1, Timestamp.valueOf(Zona.ahora()));
             ps.setInt(2, idSesion);
             ps.executeUpdate();
         }
