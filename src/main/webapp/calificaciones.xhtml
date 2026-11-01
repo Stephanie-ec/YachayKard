@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:f="jakarta.faces.core"
       xmlns:ui="jakarta.faces.facelets">
@@ -18,8 +18,8 @@
             <div class="card mb-3">
                 <div class="card-body row g-3">
                     <div class="col-md-4">
-                        <label class="form-label">Curso – sección</label>
-                        <h:selectOneMenu value="#{calificacionBean.idAsignacion}" styleClass="form-select">
+                        <h:outputLabel for="cursoSeccion" value="Curso – sección" styleClass="form-label"/>
+                        <h:selectOneMenu id="cursoSeccion" value="#{calificacionBean.idAsignacion}" styleClass="form-select">
                             <f:selectItem itemValue="0" itemLabel="-- Seleccione --"/>
                             <f:selectItems value="#{calificacionBean.asignaciones}" var="a"
                                            itemValue="#{a.valor}" itemLabel="#{a.etiqueta}"/>
@@ -27,8 +27,8 @@
                         </h:selectOneMenu>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Competencia</label>
-                        <h:selectOneMenu value="#{calificacionBean.idCompetencia}" styleClass="form-select">
+                        <h:outputLabel for="competencia" value="Competencia" styleClass="form-label"/>
+                        <h:selectOneMenu id="competencia" value="#{calificacionBean.idCompetencia}" styleClass="form-select">
                             <f:selectItem itemValue="0" itemLabel="-- Seleccione --"/>
                             <f:selectItems value="#{calificacionBean.competencias}" var="c"
                                            itemValue="#{c.idCompetencia}" itemLabel="#{c.codigo} – #{c.descripcion}"/>
@@ -36,8 +36,8 @@
                         </h:selectOneMenu>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Periodo</label>
-                        <h:selectOneMenu value="#{calificacionBean.idPeriodo}" styleClass="form-select">
+                        <h:outputLabel for="periodo" value="Periodo" styleClass="form-label"/>
+                        <h:selectOneMenu id="periodo" value="#{calificacionBean.idPeriodo}" styleClass="form-select">
                             <f:selectItem itemValue="0" itemLabel="-- Seleccione --"/>
                             <f:selectItems value="#{calificacionBean.periodos}" var="p"
                                            itemValue="#{p.idPeriodo}" itemLabel="#{p.nombrePeriodo}"/>
@@ -45,8 +45,8 @@
                         </h:selectOneMenu>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Mes</label>
-                        <h:selectOneMenu value="#{calificacionBean.mes}" styleClass="form-select">
+                        <h:outputLabel for="mes" value="Mes" styleClass="form-label"/>
+                        <h:selectOneMenu id="mes" value="#{calificacionBean.mes}" styleClass="form-select">
                             <f:selectItem itemValue="0" itemLabel="--"/>
                             <f:selectItems value="#{calificacionBean.meses}" var="m"
                                            itemValue="#{m.valor}" itemLabel="#{m.etiqueta}"/>
@@ -121,7 +121,7 @@
                     </h:column>
                     <h:column>
                         <f:facet name="header">Estado</f:facet>
-                        <span class="badge #{fila.bloqueada ? 'bg-secondary' : (fila.guardada ? 'bg-success' : (fila.faltaDebilidad ? 'bg-danger' : 'bg-light text-dark'))}">#{fila.estado}</span>
+                        <span class="badge #{fila.claseEstado}">#{fila.estado}</span>
                     </h:column>
                 </h:dataTable>
             </h:panelGroup>

@@ -8,10 +8,10 @@ import jakarta.inject.Named;
 import pe.edu.utp.yachaykard.dao.PeriodoDAO;
 import pe.edu.utp.yachaykard.dao.impl.PeriodoDAOImpl;
 import pe.edu.utp.yachaykard.modelo.Periodo;
+import pe.edu.utp.yachaykard.util.Zona;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -140,7 +140,7 @@ public class PeriodoBean implements Serializable {
      */
     public String etiquetaEstado(Periodo p) {
         if ("Cerrado".equals(p.getEstado()) && p.getFechaInicio() != null
-                && p.getFechaInicio().isAfter(LocalDate.now())) {
+                && p.getFechaInicio().isAfter(Zona.hoy())) {
             return "Por iniciar";
         }
         return p.getEstado();

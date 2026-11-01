@@ -32,6 +32,7 @@ import pe.edu.utp.yachaykard.modelo.Grado;
 import pe.edu.utp.yachaykard.modelo.Periodo;
 import pe.edu.utp.yachaykard.modelo.Seccion;
 import pe.edu.utp.yachaykard.servicio.GeneradorConclusion;
+import pe.edu.utp.yachaykard.util.Zona;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -123,9 +124,13 @@ public class CalificacionBean implements Serializable {
                 meses.add(new Opcion(cursor.getMonthValue(), NOMBRES_MES[cursor.getMonthValue()]));
                 cursor = cursor.plusMonths(1);
             }
-            int mesActual = LocalDate.now().getMonthValue();
+            int mesActual = Zona.hoy().getMonthValue();
             boolean actualDentro = meses.stream().anyMatch(o -> o.getValor() == mesActual);
-            mes = actualDentro ? mesActual : (meses.isEmpty() ? 0 : meses.get(0).getValor());
+            if (actualDentro) {
+                mes = mesActual;
+            } else if (!meses.isEmpty()) {
+                mes = meses.get(0).getValor();
+            }
         }
         cargarFilas();
     }
@@ -428,6 +433,20 @@ public class CalificacionBean implements Serializable {
                 return "Falta debilidad";
             }
             return guardada ? "✓ Guardado" : "Pendiente";
+        }
+
+        /** @return clase de Bootstrap del distintivo de estado de la fila */
+        public String getClaseEstado() {
+            if (bloqueada) {
+                return "bg-secondary";
+            }
+            if (guardada) {
+                return "bg-success";
+            }
+            if (faltaDebilidad) {
+                return "bg-danger";
+            }
+            return "bg-light text-dark";
         }
 
         public int getOrden() {
