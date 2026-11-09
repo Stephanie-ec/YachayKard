@@ -29,7 +29,8 @@ public class FiltroSesion implements Filter {
             "/periodos.xhtml", Set.of(DatosSesion.ADMINISTRADOR),
             "/catalogoIncidencias.xhtml", Set.of(DatosSesion.ADMINISTRADOR),
             "/calificaciones.xhtml", Set.of(DatosSesion.ADMINISTRADOR, DatosSesion.DOCENTE),
-            "/historial.xhtml", Set.of(DatosSesion.ADMINISTRADOR, DatosSesion.DOCENTE)
+            "/historial.xhtml", Set.of(DatosSesion.ADMINISTRADOR, DatosSesion.DOCENTE),
+            "/misSecciones.xhtml", Set.of(DatosSesion.DOCENTE)
     );
 
     @Override

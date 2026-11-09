@@ -54,6 +54,11 @@
 
                     <ui:fragment rendered="#{sesionBean.administrador or sesionBean.docente}">
                         <li class="nav-item mt-3 text-muted small text-uppercase">Académico</li>
+                        <ui:fragment rendered="#{sesionBean.docente}">
+                            <li class="nav-item">
+                                <a class="nav-link" href="#{request.contextPath}/misSecciones.xhtml">Mis secciones</a>
+                            </li>
+                        </ui:fragment>
                         <li class="nav-item">
                             <a class="nav-link" href="#{request.contextPath}/calificaciones.xhtml">Calificaciones</a>
                         </li>
