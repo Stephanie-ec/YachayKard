@@ -13,6 +13,12 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- SonarQube Cloud: organización y proyecto (ver Information en sonarcloud.io) -->
+        <sonar.organization>stephanie-ec</sonar.organization>
+        <sonar.projectKey>Stephanie-ec_YachayKard</sonar.projectKey>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <!-- La cobertura se mide en la lógica; DAOImpl, beans, REST y filtros dependen de MySQL o del servidor -->
+        <sonar.coverage.exclusions>**/dao/impl/**,**/bean/**,**/rest/**,**/util/ConexionBD.java,**/util/FiltroSesion.java</sonar.coverage.exclusions>
     </properties>
 
     <dependencies>

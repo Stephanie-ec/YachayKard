@@ -2,6 +2,7 @@ package pe.edu.utp.yachaykard.dao.impl;
 
 import pe.edu.utp.yachaykard.dao.UsuarioDAO;
 import pe.edu.utp.yachaykard.modelo.Usuario;
+import pe.edu.utp.yachaykard.util.CifradoClave;
 import pe.edu.utp.yachaykard.util.ConexionBD;
 
 import java.sql.Connection;
@@ -32,7 +33,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, usuario.getUsername());
-            ps.setString(2, usuario.getPassword());
+            ps.setString(2, CifradoClave.cifrar(usuario.getPassword()));
             ps.setInt(3, usuario.getIdRol());
             ps.setInt(4, usuario.getIdInstitucion());
 
@@ -48,7 +49,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, usuario.getUsername());
-            ps.setString(2, usuario.getPassword());
+            ps.setString(2, CifradoClave.cifrar(usuario.getPassword()));
             ps.setInt(3, usuario.getIdRol());
             ps.setInt(4, usuario.getIdInstitucion());
             ps.setInt(5, usuario.getIdUsuario());
@@ -121,16 +122,15 @@ public class UsuarioDAOImpl implements UsuarioDAO {
 
     @Override
     public boolean autenticar(String username, String password) throws SQLException {
-        String sql = "SELECT 1 FROM usuario WHERE username = ? AND password = ?";
+        String sql = "SELECT password FROM usuario WHERE username = ?";
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, username);
-            ps.setString(2, password);
 
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
+                return rs.next() && CifradoClave.verificar(password, rs.getString("password"));
             }
         }
     }
