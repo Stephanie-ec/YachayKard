@@ -17,9 +17,16 @@ import java.util.List;
  */
 public class CalificacionDAOImpl implements CalificacionDAO {
 
-    /** Columnas que se leen de la tabla calificacion. */
+    /**
+     * Columnas que se leen de la tabla calificacion.
+     */
     private static final String COLUMNAS =
             "id_calificacion, id_estudiante, id_competencia, id_periodo, observacion, mes, nivel_mensual, fortaleza, debilidad, conclusion_descriptiva";
+
+    /**
+     * Inicio común de las consultas de esta tabla.
+     */
+    private static final String CONSULTA_BASE = "SELECT " + COLUMNAS + " FROM calificacion";
 
 
     @Override
@@ -61,13 +68,13 @@ public class CalificacionDAOImpl implements CalificacionDAO {
 
     @Override
     public Calificacion buscarPorId(int idCalificacion) throws SQLException {
-        List<Calificacion> lista = consultar("SELECT " + COLUMNAS + " FROM calificacion WHERE id_calificacion = ?", idCalificacion);
+        List<Calificacion> lista = consultar(CONSULTA_BASE + " WHERE id_calificacion = ?", idCalificacion);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<Calificacion> listarTodos() throws SQLException {
-        String sql = "SELECT " + COLUMNAS + " FROM calificacion";
+        String sql = CONSULTA_BASE;
         List<Calificacion> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -126,7 +133,7 @@ public class CalificacionDAOImpl implements CalificacionDAO {
 
     @Override
     public List<Calificacion> listarPorEstudiante(int idEstudiante) throws SQLException {
-        return consultar("SELECT " + COLUMNAS + " FROM calificacion WHERE id_estudiante = ? ORDER BY id_periodo, mes", idEstudiante);
+        return consultar(CONSULTA_BASE + " WHERE id_estudiante = ? ORDER BY id_periodo, mes", idEstudiante);
     }
 
     /**
@@ -157,7 +164,7 @@ public class CalificacionDAOImpl implements CalificacionDAO {
     /**
      * Asigna los campos comunes de INSERT y UPDATE, en el orden de las columnas.
      *
-     * @param ps sentencia preparada
+     * @param ps           sentencia preparada
      * @param calificacion datos de origen
      * @throws SQLException si falla la asignación de un parámetro
      */

@@ -1,5 +1,6 @@
 package pe.edu.utp.yachaykard.servicio;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -7,7 +8,9 @@ import java.util.List;
  * la competencia, la fortaleza y la debilidad (capa Servicios del diagrama de componentes).
  * Según la norma del Minedu, la conclusión es obligatoria para los niveles B y C.
  */
-public class GeneradorConclusion {
+public class GeneradorConclusion implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /** Frases predefinidas de fortaleza (no hay lista oficial; cada una cabe en VARCHAR(150)). */
     public static final List<String> FORTALEZAS = List.of(

@@ -17,9 +17,16 @@ import java.util.List;
  */
 public class AsignacionCursoDAOImpl implements AsignacionCursoDAO {
 
-    /** Columnas que se leen de la tabla asignacion_curso. */
+    /**
+     * Columnas que se leen de la tabla asignacion_curso.
+     */
     private static final String COLUMNAS =
             "id_asignacion, anio_academico, id_docente, id_curso, id_seccion";
+
+    /**
+     * Inicio común de las consultas de esta tabla.
+     */
+    private static final String CONSULTA_BASE = "SELECT " + COLUMNAS + " FROM asignacion_curso";
 
 
     @Override
@@ -61,13 +68,13 @@ public class AsignacionCursoDAOImpl implements AsignacionCursoDAO {
 
     @Override
     public AsignacionCurso buscarPorId(int idAsignacion) throws SQLException {
-        List<AsignacionCurso> lista = consultar("SELECT " + COLUMNAS + " FROM asignacion_curso WHERE id_asignacion = ?", idAsignacion);
+        List<AsignacionCurso> lista = consultar(CONSULTA_BASE + " WHERE id_asignacion = ?", idAsignacion);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<AsignacionCurso> listarTodos() throws SQLException {
-        String sql = "SELECT " + COLUMNAS + " FROM asignacion_curso";
+        String sql = CONSULTA_BASE;
         List<AsignacionCurso> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -83,7 +90,7 @@ public class AsignacionCursoDAOImpl implements AsignacionCursoDAO {
 
     @Override
     public List<AsignacionCurso> listarPorDocente(int idDocente) throws SQLException {
-        return consultar("SELECT " + COLUMNAS + " FROM asignacion_curso WHERE id_docente = ?", idDocente);
+        return consultar(CONSULTA_BASE + " WHERE id_docente = ?", idDocente);
     }
 
     /**
