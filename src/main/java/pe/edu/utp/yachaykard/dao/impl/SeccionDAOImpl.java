@@ -17,10 +17,17 @@ import java.util.List;
  * Cada método abre su conexión con try-with-resources, que la cierra automáticamente.
  */
 public class SeccionDAOImpl implements SeccionDAO {
-    
-    /** Columnas que se leen de la tabla seccion. */
+
+    /**
+     * Columnas que se leen de la tabla seccion.
+     */
     private static final String COLUMNAS =
             "id_seccion, letra, aforo, id_grado, id_docente_tutor, id_auxiliar";
+
+    /**
+     * Inicio común de las consultas de esta tabla.
+     */
+    private static final String CONSULTA_BASE = "SELECT " + COLUMNAS + " FROM seccion";
 
     @Override
     public void insertar(Seccion seccion) throws SQLException {
@@ -61,13 +68,13 @@ public class SeccionDAOImpl implements SeccionDAO {
 
     @Override
     public Seccion buscarPorId(int idSeccion) throws SQLException {
-        List<Seccion> lista = consultar("SELECT " + COLUMNAS + " FROM seccion WHERE id_seccion = ?", idSeccion);
+        List<Seccion> lista = consultar(CONSULTA_BASE + " WHERE id_seccion = ?", idSeccion);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<Seccion> listarTodos() throws SQLException {
-        String sql = "SELECT " + COLUMNAS + " FROM seccion";
+        String sql = CONSULTA_BASE;
         List<Seccion> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -83,7 +90,7 @@ public class SeccionDAOImpl implements SeccionDAO {
 
     @Override
     public List<Seccion> listarPorTutor(int idDocenteTutor) throws SQLException {
-        return consultar("SELECT " + COLUMNAS + " FROM seccion WHERE id_docente_tutor = ?", idDocenteTutor);
+        return consultar(CONSULTA_BASE + " WHERE id_docente_tutor = ?", idDocenteTutor);
     }
 
     /**
@@ -114,7 +121,7 @@ public class SeccionDAOImpl implements SeccionDAO {
     /**
      * Asigna los campos comunes de INSERT y UPDATE, en el orden de las columnas.
      *
-     * @param ps sentencia preparada
+     * @param ps      sentencia preparada
      * @param seccion datos de origen
      * @throws SQLException si falla la asignación de un parámetro
      */

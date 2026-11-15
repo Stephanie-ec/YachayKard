@@ -17,6 +17,7 @@ import java.util.List;
  */
 public class CalificacionDAOImpl implements CalificacionDAO {
 
+    public static final String SELECT = "SELECT ";
     /** Columnas que se leen de la tabla calificacion. */
     private static final String COLUMNAS =
             "id_calificacion, id_estudiante, id_competencia, id_periodo, observacion, mes, nivel_mensual, fortaleza, debilidad, conclusion_descriptiva";
@@ -61,13 +62,13 @@ public class CalificacionDAOImpl implements CalificacionDAO {
 
     @Override
     public Calificacion buscarPorId(int idCalificacion) throws SQLException {
-        List<Calificacion> lista = consultar("SELECT " + COLUMNAS + " FROM calificacion WHERE id_calificacion = ?", idCalificacion);
+        List<Calificacion> lista = consultar(SELECT + COLUMNAS + " FROM calificacion WHERE id_calificacion = ?", idCalificacion);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<Calificacion> listarTodos() throws SQLException {
-        String sql = "SELECT " + COLUMNAS + " FROM calificacion";
+        String sql = SELECT + COLUMNAS + " FROM calificacion";
         List<Calificacion> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -126,7 +127,7 @@ public class CalificacionDAOImpl implements CalificacionDAO {
 
     @Override
     public List<Calificacion> listarPorEstudiante(int idEstudiante) throws SQLException {
-        return consultar("SELECT " + COLUMNAS + " FROM calificacion WHERE id_estudiante = ? ORDER BY id_periodo, mes", idEstudiante);
+        return consultar(SELECT + COLUMNAS + " FROM calificacion WHERE id_estudiante = ? ORDER BY id_periodo, mes", idEstudiante);
     }
 
     /**

@@ -5,10 +5,10 @@ import pe.edu.utp.yachaykard.modelo.Estudiante;
 import pe.edu.utp.yachaykard.util.ConexionBD;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,7 +121,7 @@ public class EstudianteDAOImpl implements EstudianteDAO {
         ps.setString(1, estudiante.getDni());
         ps.setString(2, estudiante.getNombres());
         ps.setString(3, estudiante.getApellidos());
-        ps.setDate(4, estudiante.getFechaNacimiento() != null ? Date.valueOf(estudiante.getFechaNacimiento()) : null);
+        ps.setObject(4, estudiante.getFechaNacimiento());
         ps.setInt(5, estudiante.getIdApoderado());
         ps.setString(6, estudiante.getIdSiagie());
         ps.setString(7, estudiante.getCodigoEstudiante());
@@ -140,7 +140,7 @@ public class EstudianteDAOImpl implements EstudianteDAO {
         estudiante.setDni(rs.getString("dni"));
         estudiante.setNombres(rs.getString("nombres"));
         estudiante.setApellidos(rs.getString("apellidos"));
-        estudiante.setFechaNacimiento(rs.getDate("fecha_nacimiento") != null ? rs.getDate("fecha_nacimiento").toLocalDate() : null);
+        estudiante.setFechaNacimiento(rs.getObject("fecha_nacimiento", LocalDate.class));
         estudiante.setIdApoderado(rs.getInt("id_apoderado"));
         estudiante.setIdSiagie(rs.getString("id_siagie"));
         estudiante.setCodigoEstudiante(rs.getString("codigo_estudiante"));

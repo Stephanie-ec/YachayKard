@@ -5,10 +5,10 @@ import pe.edu.utp.yachaykard.modelo.Matricula;
 import pe.edu.utp.yachaykard.util.ConexionBD;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,10 +17,13 @@ import java.util.List;
  * Cada método abre su conexión con try-with-resources, que la cierra automáticamente.
  */
 public class MatriculaDAOImpl implements MatriculaDAO {
-    
+
     /** Columnas que se leen de la tabla matricula. */
     private static final String COLUMNAS =
             "id_matricula, fecha_matricula, anio_lectivo, estado, id_estudiante, id_seccion";
+
+    /** Inicio común de las consultas de esta tabla. */
+    private static final String CONSULTA_BASE = "SELECT " + COLUMNAS + " FROM matricula";
 
     @Override
     public void insertar(Matricula matricula) throws SQLException {
@@ -116,13 +119,13 @@ public class MatriculaDAOImpl implements MatriculaDAO {
 
     @Override
     public Matricula buscarPorId(int idMatricula) throws SQLException {
-        List<Matricula> lista = consultar("SELECT " + COLUMNAS + " FROM matricula WHERE id_matricula = ?", idMatricula);
+        List<Matricula> lista = consultar(CONSULTA_BASE + " WHERE id_matricula = ?", idMatricula);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<Matricula> listarTodos() throws SQLException {
-        String sql = "SELECT " + COLUMNAS + " FROM matricula";
+        String sql = CONSULTA_BASE;
         List<Matricula> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -138,7 +141,7 @@ public class MatriculaDAOImpl implements MatriculaDAO {
 
     @Override
     public List<Matricula> listarPorSeccion(int idSeccion) throws SQLException {
-        return consultar("SELECT " + COLUMNAS + " FROM matricula WHERE id_seccion = ?", idSeccion);
+        return consultar(CONSULTA_BASE + " WHERE id_seccion = ?", idSeccion);
     }
 
     /**
@@ -174,7 +177,7 @@ public class MatriculaDAOImpl implements MatriculaDAO {
      * @throws SQLException si falla la asignación de un parámetro
      */
     private void asignarParametros(PreparedStatement ps, Matricula matricula) throws SQLException {
-        ps.setDate(1, matricula.getFechaMatricula() != null ? Date.valueOf(matricula.getFechaMatricula()) : null);
+        ps.setObject(1, matricula.getFechaMatricula());
         ps.setString(2, matricula.getAnioLectivo());
         ps.setString(3, matricula.getEstado());
         ps.setInt(4, matricula.getIdEstudiante());
@@ -191,7 +194,7 @@ public class MatriculaDAOImpl implements MatriculaDAO {
     private Matricula mapearMatricula(ResultSet rs) throws SQLException {
         Matricula matricula = new Matricula();
         matricula.setIdMatricula(rs.getInt("id_matricula"));
-        matricula.setFechaMatricula(rs.getDate("fecha_matricula") != null ? rs.getDate("fecha_matricula").toLocalDate() : null);
+        matricula.setFechaMatricula(rs.getObject("fecha_matricula", LocalDate.class));
         matricula.setAnioLectivo(rs.getString("anio_lectivo"));
         matricula.setEstado(rs.getString("estado"));
         matricula.setIdEstudiante(rs.getInt("id_estudiante"));
