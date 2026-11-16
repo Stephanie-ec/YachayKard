@@ -11,7 +11,6 @@ import pe.edu.utp.yachaykard.dao.CompetenciaDAO;
 import pe.edu.utp.yachaykard.dao.CursoDAO;
 import pe.edu.utp.yachaykard.dao.EstudianteDAO;
 import pe.edu.utp.yachaykard.dao.GradoDAO;
-import pe.edu.utp.yachaykard.dao.PeriodoDAO;
 import pe.edu.utp.yachaykard.dao.ReporteCierreDAO;
 import pe.edu.utp.yachaykard.dao.SeccionDAO;
 import pe.edu.utp.yachaykard.dao.impl.AsignacionCursoDAOImpl;
@@ -32,11 +31,11 @@ import pe.edu.utp.yachaykard.modelo.Grado;
 import pe.edu.utp.yachaykard.modelo.Periodo;
 import pe.edu.utp.yachaykard.modelo.Seccion;
 import pe.edu.utp.yachaykard.servicio.GeneradorConclusion;
+import pe.edu.utp.yachaykard.servicio.MesesPeriodo;
 import pe.edu.utp.yachaykard.util.Zona;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -118,19 +117,12 @@ public class CalificacionBean implements Serializable {
         meses = new ArrayList<>();
         mes = 0;
         Periodo p = periodoSeleccionado();
-        if (p != null && p.getFechaInicio() != null && p.getFechaFin() != null) {
-            LocalDate cursor = p.getFechaInicio().withDayOfMonth(1);
-            while (!cursor.isAfter(p.getFechaFin())) {
-                meses.add(new Opcion(cursor.getMonthValue(), NOMBRES_MES[cursor.getMonthValue()]));
-                cursor = cursor.plusMonths(1);
+        if (p != null) {
+            List<Integer> numeros = MesesPeriodo.meses(p.getFechaInicio(), p.getFechaFin());
+            for (int numero : numeros) {
+                meses.add(new Opcion(numero, NOMBRES_MES[numero]));
             }
-            int mesActual = Zona.hoy().getMonthValue();
-            boolean actualDentro = meses.stream().anyMatch(o -> o.getValor() == mesActual);
-            if (actualDentro) {
-                mes = mesActual;
-            } else if (!meses.isEmpty()) {
-                mes = meses.get(0).getValor();
-            }
+            mes = MesesPeriodo.mesPorDefecto(numeros, Zona.hoy().getMonthValue());
         }
         cargarFilas();
     }
@@ -222,13 +214,7 @@ public class CalificacionBean implements Serializable {
         if (!soloPendientes) {
             return filas;
         }
-        List<Fila> pendientes = new ArrayList<>();
-        for (Fila f : filas) {
-            if (!f.isGuardada()) {
-                pendientes.add(f);
-            }
-        }
-        return pendientes;
+        return filas.stream().filter(f -> !f.isGuardada()).toList();
     }
 
     /** @return cantidad de estudiantes con calificación guardada */

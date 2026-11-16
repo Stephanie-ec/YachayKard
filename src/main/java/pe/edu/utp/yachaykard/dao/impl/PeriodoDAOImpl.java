@@ -5,10 +5,10 @@ import pe.edu.utp.yachaykard.modelo.Periodo;
 import pe.edu.utp.yachaykard.util.ConexionBD;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -162,8 +162,8 @@ public class PeriodoDAOImpl implements PeriodoDAO {
     private void asignarParametros(PreparedStatement ps, Periodo periodo) throws SQLException {
         ps.setString(1, periodo.getNombrePeriodo());
         ps.setString(2, periodo.getTipo());
-        ps.setDate(3, periodo.getFechaInicio() != null ? Date.valueOf(periodo.getFechaInicio()) : null);
-        ps.setDate(4, periodo.getFechaFin() != null ? Date.valueOf(periodo.getFechaFin()) : null);
+        ps.setObject(3, periodo.getFechaInicio());
+        ps.setObject(4, periodo.getFechaFin());
         ps.setString(5, periodo.getEstado());
     }
 
@@ -179,8 +179,8 @@ public class PeriodoDAOImpl implements PeriodoDAO {
         periodo.setIdPeriodo(rs.getInt("id_periodo"));
         periodo.setNombrePeriodo(rs.getString("nombre_periodo"));
         periodo.setTipo(rs.getString("tipo"));
-        periodo.setFechaInicio(rs.getDate("fecha_inicio") != null ? rs.getDate("fecha_inicio").toLocalDate() : null);
-        periodo.setFechaFin(rs.getDate("fecha_fin") != null ? rs.getDate("fecha_fin").toLocalDate() : null);
+        periodo.setFechaInicio(rs.getObject("fecha_inicio", LocalDate.class));
+        periodo.setFechaFin(rs.getObject("fecha_fin", LocalDate.class));
         periodo.setEstado(rs.getString("estado"));
         return periodo;
     }

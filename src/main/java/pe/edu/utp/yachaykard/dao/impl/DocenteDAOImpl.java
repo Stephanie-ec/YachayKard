@@ -13,12 +13,20 @@ import java.util.List;
 
 /**
  * Implementación JDBC de {@link DocenteDAO}.
- * Cada método abre su conexión con try-with-resources, que la cierra automáticamente.*/
+ * Cada método abre su conexión con try-with-resources, que la cierra automáticamente.
+ */
 public class DocenteDAOImpl implements DocenteDAO {
 
-    /** Columnas que se leen de la tabla docente. */
+    /**
+     * Columnas que se leen de la tabla docente.
+     */
     private static final String COLUMNAS =
             "id_docente, dni, nombres, apellidos, especialidad, id_usuario";
+
+    /**
+     * Inicio común de las consultas de esta tabla.
+     */
+    private static final String CONSULTA_BASE = "SELECT " + COLUMNAS + " FROM docente";
 
     @Override
     public void insertar(Docente docente) throws SQLException {
@@ -59,13 +67,13 @@ public class DocenteDAOImpl implements DocenteDAO {
 
     @Override
     public Docente buscarPorId(int idDocente) throws SQLException {
-        List<Docente> lista = consultar("SELECT " + COLUMNAS + " FROM docente WHERE id_docente = ?", idDocente);
+        List<Docente> lista = consultar(CONSULTA_BASE + " WHERE id_docente = ?", idDocente);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<Docente> listarTodos() throws SQLException {
-        String sql = "SELECT " + COLUMNAS + " FROM docente";
+        String sql = CONSULTA_BASE;
         List<Docente> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -81,7 +89,7 @@ public class DocenteDAOImpl implements DocenteDAO {
 
     @Override
     public List<Docente> listarPorUsuario(int idUsuario) throws SQLException {
-        return consultar("SELECT " + COLUMNAS + " FROM docente WHERE id_usuario = ?", idUsuario);
+        return consultar(CONSULTA_BASE + " WHERE id_usuario = ?", idUsuario);
     }
 
     /**

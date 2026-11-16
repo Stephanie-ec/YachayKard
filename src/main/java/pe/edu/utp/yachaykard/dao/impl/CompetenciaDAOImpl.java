@@ -21,6 +21,9 @@ public class CompetenciaDAOImpl implements CompetenciaDAO {
     private static final String COLUMNAS =
             "id_competencia, descripcion, id_curso, codigo";
 
+    /** Inicio común de las consultas de esta tabla. */
+    private static final String CONSULTA_BASE = "SELECT " + COLUMNAS + " FROM competencia";
+
 
     @Override
     public void insertar(Competencia competencia) throws SQLException {
@@ -61,13 +64,13 @@ public class CompetenciaDAOImpl implements CompetenciaDAO {
 
     @Override
     public Competencia buscarPorId(int idCompetencia) throws SQLException {
-        List<Competencia> lista = consultar("SELECT " + COLUMNAS + " FROM competencia WHERE id_competencia = ?", idCompetencia);
+        List<Competencia> lista = consultar(CONSULTA_BASE + " WHERE id_competencia = ?", idCompetencia);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<Competencia> listarTodos() throws SQLException {
-        String sql = "SELECT " + COLUMNAS + " FROM competencia";
+        String sql = CONSULTA_BASE;
         List<Competencia> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -83,7 +86,7 @@ public class CompetenciaDAOImpl implements CompetenciaDAO {
 
     @Override
     public List<Competencia> listarPorCurso(int idCurso) throws SQLException {
-        return consultar("SELECT " + COLUMNAS + " FROM competencia WHERE id_curso = ? ORDER BY codigo", idCurso);
+        return consultar(CONSULTA_BASE + " WHERE id_curso = ? ORDER BY codigo", idCurso);
     }
 
     /**

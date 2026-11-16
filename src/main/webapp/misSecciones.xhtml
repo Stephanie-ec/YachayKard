@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="titulo">Mis secciones - YachayKard</ui:define>
+
+    <ui:define name="contenido">
+        <h2 class="mb-1">Mis secciones</h2>
+        <p class="text-muted mb-3">Cursos y secciones que tiene asignados en el año académico.</p>
+
+        <h:messages styleClass="list-unstyled" errorClass="alert alert-danger"/>
+
+        <h:dataTable value="#{misSeccionesBean.filas}" var="f"
+                     styleClass="table table-striped table-hover align-middle"
+                     rendered="#{not empty misSeccionesBean.filas}">
+            <h:column>
+                <f:facet name="header">Curso</f:facet>
+                #{f.curso}
+            </h:column>
+            <h:column>
+                <f:facet name="header">Grado y sección</f:facet>
+                #{f.seccion}
+                <h:outputText value="Tutor" styleClass="badge bg-primary ms-2" rendered="#{f.tutor}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Año</f:facet>
+                #{f.anio}
+            </h:column>
+            <h:column>
+                <f:facet name="header">Estudiantes activos</f:facet>
+                #{f.estudiantes}
+            </h:column>
+            <h:column>
+                <f:facet name="header">Acciones</f:facet>
+                <a class="btn btn-sm btn-outline-primary"
+                   href="#{request.contextPath}/calificaciones.xhtml">Registrar calificaciones</a>
+            </h:column>
+        </h:dataTable>
+
+        <h:panelGroup layout="block" styleClass="text-muted" rendered="#{not empty misSeccionesBean.filas}">
+            Total de estudiantes a su cargo: #{misSeccionesBean.totalEstudiantes}
+        </h:panelGroup>
+        <h:outputText value="Aún no tiene cursos asignados. Consulte con el administrador."
+                      styleClass="text-muted" rendered="#{empty misSeccionesBean.filas}"/>
+    </ui:define>
+
+</ui:composition>
+</html>
