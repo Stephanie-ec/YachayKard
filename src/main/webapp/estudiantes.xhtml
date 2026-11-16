@@ -63,7 +63,7 @@
                             <h:outputLabel for="codigoEstudiante" value="Código de estudiante" styleClass="form-label"/>
                             <h:inputText id="codigoEstudiante" value="#{estudianteBean.estudiante.codigoEstudiante}" styleClass="form-control"
                                          validatorMessage="El código de estudiante debe tener 14 dígitos.">
-                                <f:validateRegex pattern="[0-9]{14}"/>
+                                <f:validateRegex pattern="([0-9]{14})?"/>
                             </h:inputText>
                         </div>
                     </div>
