@@ -16,7 +16,6 @@ import java.util.List;
  * Cada método abre su conexión con try-with-resources, que la cierra automáticamente.*/
 public class DocenteDAOImpl implements DocenteDAO {
 
-    public static final String SELECT = "SELECT ";
     /** Columnas que se leen de la tabla docente. */
     private static final String COLUMNAS =
             "id_docente, dni, nombres, apellidos, especialidad, id_usuario";
@@ -60,13 +59,13 @@ public class DocenteDAOImpl implements DocenteDAO {
 
     @Override
     public Docente buscarPorId(int idDocente) throws SQLException {
-        List<Docente> lista = consultar(SELECT + COLUMNAS + " FROM docente WHERE id_docente = ?", idDocente);
+        List<Docente> lista = consultar("SELECT " + COLUMNAS + " FROM docente WHERE id_docente = ?", idDocente);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<Docente> listarTodos() throws SQLException {
-        String sql = SELECT + COLUMNAS + " FROM docente";
+        String sql = "SELECT " + COLUMNAS + " FROM docente";
         List<Docente> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -82,7 +81,7 @@ public class DocenteDAOImpl implements DocenteDAO {
 
     @Override
     public List<Docente> listarPorUsuario(int idUsuario) throws SQLException {
-        return consultar(SELECT + COLUMNAS + " FROM docente WHERE id_usuario = ?", idUsuario);
+        return consultar("SELECT " + COLUMNAS + " FROM docente WHERE id_usuario = ?", idUsuario);
     }
 
     /**
