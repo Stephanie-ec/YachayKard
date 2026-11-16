@@ -11,6 +11,7 @@ import pe.edu.utp.yachaykard.dao.impl.ApoderadoDAOImpl;
 import pe.edu.utp.yachaykard.dao.impl.EstudianteDAOImpl;
 import pe.edu.utp.yachaykard.modelo.Apoderado;
 import pe.edu.utp.yachaykard.modelo.Estudiante;
+import pe.edu.utp.yachaykard.servicio.ValidadorEstudiante;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -29,13 +30,17 @@ public class EstudianteBean implements Serializable {
     private List<Apoderado> apoderados = new ArrayList<>();
     private Estudiante estudiante = new Estudiante();
 
-    /** Carga la lista de estudiantes y de apoderados al abrir la pantalla. */
+    /**
+     * Carga la lista de estudiantes y de apoderados al abrir la pantalla.
+     */
     @PostConstruct
     public void init() {
         cargar();
     }
 
-    /** Vuelve a leer estudiantes y apoderados desde la base de datos. */
+    /**
+     * Vuelve a leer estudiantes y apoderados desde la base de datos.
+     */
     public void cargar() {
         try {
             estudiantes = estudianteDAO().listarTodos();
@@ -45,8 +50,15 @@ public class EstudianteBean implements Serializable {
         }
     }
 
-    /** Registra un estudiante nuevo o actualiza el que se está editando. */
+    /**
+     * Registra un estudiante nuevo o actualiza el que se está editando.
+     */
     public void guardar() {
+        List<String> errores = new ValidadorEstudiante().validar(estudiante);
+        if (!errores.isEmpty()) {
+            errores.forEach(error -> mensaje(FacesMessage.SEVERITY_ERROR, error));
+            return;
+        }
         try {
             if (estudiante.getIdEstudiante() == 0) {
                 estudianteDAO().registrar(estudiante);
@@ -87,7 +99,9 @@ public class EstudianteBean implements Serializable {
         }
     }
 
-    /** Limpia el formulario. */
+    /**
+     * Limpia el formulario.
+     */
     public void cancelar() {
         estudiante = new Estudiante();
     }
@@ -107,12 +121,16 @@ public class EstudianteBean implements Serializable {
         return "-";
     }
 
-    /** @return DAO de estudiantes (se crea en cada uso porque no guarda estado) */
+    /**
+     * @return DAO de estudiantes (se crea en cada uso porque no guarda estado)
+     */
     private EstudianteDAO estudianteDAO() {
         return new EstudianteDAOImpl();
     }
 
-    /** @return DAO de apoderados */
+    /**
+     * @return DAO de apoderados
+     */
     private ApoderadoDAO apoderadoDAO() {
         return new ApoderadoDAOImpl();
     }
