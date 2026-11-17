@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:pt="jakarta.faces.passthrough">
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="titulo">Grados, secciones y cursos - YachayKard</ui:define>
+
+    <ui:define name="contenido">
+        <h2 class="mb-1">Grados, secciones y cursos</h2>
+        <p class="text-muted mb-3">Estructura académica de la institución (nivel secundaria).</p>
+
+        <h:messages styleClass="list-unstyled" infoClass="alert alert-success" errorClass="alert alert-danger"/>
+
+        <div class="row g-4">
+            <!-- GRADOS (RF-05) -->
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header fw-bold">Grados</div>
+                    <div class="card-body">
+                        <h:form id="formGrado">
+                            <div class="input-group mb-3">
+                                <h:outputLabel for="numeroGrado" value="Nuevo grado" styleClass="input-group-text"/>
+                                <h:inputText id="numeroGrado" value="#{estructuraBean.grado.numeroGrado}"
+                                             styleClass="form-control" maxlength="20" pt:placeholder="Ej.: 3°"/>
+                                <h:commandButton value="Agregar" action="#{estructuraBean.guardarGrado}"
+                                                 styleClass="btn btn-primary"/>
+                            </div>
+                        </h:form>
+                        <ul class="list-group">
+                            <ui:repeat value="#{estructuraBean.grados}" var="g">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>#{g.numeroGrado}</span><span class="text-muted small">#{g.nivel}</span>
+                                </li>
+                            </ui:repeat>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIONES (RF-06) -->
+            <div class="col-lg-8">
+                <div class="card h-100">
+                    <div class="card-header fw-bold">#{estructuraBean.seccion.idSeccion == 0 ? 'Nueva sección' : 'Editar sección'}</div>
+                    <div class="card-body">
+                        <h:form id="formSeccion">
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-2">
+                                    <h:outputLabel for="gradoSeccion" value="Grado *" styleClass="form-label"/>
+                                    <h:selectOneMenu id="gradoSeccion" value="#{estructuraBean.seccion.idGrado}"
+                                                     styleClass="form-select">
+                                        <f:selectItem itemValue="0" itemLabel="—"/>
+                                        <f:selectItems value="#{estructuraBean.grados}" var="g"
+                                                       itemValue="#{g.idGrado}" itemLabel="#{g.numeroGrado}"/>
+                                    </h:selectOneMenu>
+                                </div>
+                                <div class="col-md-2">
+                                    <h:outputLabel for="letra" value="Letra *" styleClass="form-label"/>
+                                    <h:inputText id="letra" value="#{estructuraBean.letra}" styleClass="form-control"
+                                                 maxlength="1"/>
+                                </div>
+                                <div class="col-md-2">
+                                    <h:outputLabel for="aforo" value="Aforo *" styleClass="form-label"/>
+                                    <h:inputText id="aforo" value="#{estructuraBean.seccion.aforo}"
+                                                 styleClass="form-control"
+                                                 converterMessage="El aforo debe ser un número."/>
+                                </div>
+                                <div class="col-md-3">
+                                    <h:outputLabel for="tutor" value="Tutor" styleClass="form-label"/>
+                                    <h:selectOneMenu id="tutor" value="#{estructuraBean.seccion.idDocenteTutor}"
+                                                     styleClass="form-select">
+                                        <f:selectItem itemLabel="Sin tutor" noSelectionOption="true"/>
+                                        <f:selectItems value="#{estructuraBean.docentes}" var="d"
+                                                       itemValue="#{d.idDocente}"
+                                                       itemLabel="#{d.apellidos}, #{d.nombres}"/>
+                                    </h:selectOneMenu>
+                                </div>
+                                <div class="col-md-3">
+                                    <h:outputLabel for="auxiliar" value="Auxiliar" styleClass="form-label"/>
+                                    <h:selectOneMenu id="auxiliar" value="#{estructuraBean.seccion.idAuxiliar}"
+                                                     styleClass="form-select">
+                                        <f:selectItem itemLabel="Sin auxiliar" noSelectionOption="true"/>
+                                        <f:selectItems value="#{estructuraBean.auxiliares}" var="a"
+                                                       itemValue="#{a.idAuxiliar}"
+                                                       itemLabel="#{a.apellidos}, #{a.nombres}"/>
+                                    </h:selectOneMenu>
+                                </div>
+                            </div>
+                            <h:commandButton value="Guardar sección" action="#{estructuraBean.guardarSeccion}"
+                                             styleClass="btn btn-primary me-2"/>
+                            <h:commandButton value="Cancelar" action="#{estructuraBean.cancelar}" immediate="true"
+                                             styleClass="btn btn-outline-secondary"/>
+                        </h:form>
+
+                        <h:form id="formListaSecciones">
+                            <h:dataTable value="#{estructuraBean.secciones}" var="s"
+                                         styleClass="table table-sm table-hover align-middle mt-3">
+                                <h:column>
+                                    <f:facet name="header">Sección</f:facet>
+                                    #{estructuraBean.nombreGrado(s.idGrado)} "#{s.letra}"
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Aforo</f:facet>
+                                    #{s.aforo}
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Tutor</f:facet>
+                                    #{estructuraBean.nombreDocente(s.idDocenteTutor)}
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Auxiliar</f:facet>
+                                    #{estructuraBean.nombreAuxiliar(s.idAuxiliar)}
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Acciones</f:facet>
+                                    <h:commandButton value="Editar" action="#{estructuraBean.editarSeccion(s)}"
+                                                     styleClass="btn btn-sm btn-outline-primary"/>
+                                </h:column>
+                            </h:dataTable>
+                        </h:form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CURSOS (RF-09) -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header fw-bold">#{estructuraBean.curso.idCurso == 0 ? 'Nuevo curso' : 'Editar curso'}</div>
+                    <div class="card-body">
+                        <h:form id="formCurso">
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-6">
+                                    <h:outputLabel for="nombreCurso" value="Nombre del curso *"
+                                                   styleClass="form-label"/>
+                                    <h:inputText id="nombreCurso" value="#{estructuraBean.curso.nombreCurso}"
+                                                 styleClass="form-control" maxlength="100"/>
+                                </div>
+                                <div class="col-md-3">
+                                    <h:outputLabel for="horas" value="Horas semanales *" styleClass="form-label"/>
+                                    <h:inputText id="horas" value="#{estructuraBean.curso.horasSemanales}"
+                                                 styleClass="form-control"
+                                                 converterMessage="Las horas deben ser un número."/>
+                                </div>
+                                <div class="col-md-3">
+                                    <h:outputLabel for="codigoSiagie" value="Código de hoja RegNotas"
+                                                   styleClass="form-label"/>
+                                    <h:inputText id="codigoSiagie" value="#{estructuraBean.curso.codigoSiagie}"
+                                                 styleClass="form-control" maxlength="20"/>
+                                </div>
+                            </div>
+                            <h:commandButton value="Guardar curso" action="#{estructuraBean.guardarCurso}"
+                                             styleClass="btn btn-primary me-2"/>
+                            <h:commandButton value="Cancelar" action="#{estructuraBean.cancelar}" immediate="true"
+                                             styleClass="btn btn-outline-secondary"/>
+                        </h:form>
+
+                        <h:form id="formListaCursos">
+                            <h:dataTable value="#{estructuraBean.cursos}" var="c"
+                                         styleClass="table table-sm table-hover align-middle mt-3">
+                                <h:column>
+                                    <f:facet name="header">Curso</f:facet>
+                                    #{c.nombreCurso}
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Horas</f:facet>
+                                    #{c.horasSemanales}
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Código RegNotas</f:facet>
+                                    #{c.codigoSiagie}
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Acciones</f:facet>
+                                    <h:commandButton value="Editar" action="#{estructuraBean.editarCurso(c)}"
+                                                     styleClass="btn btn-sm btn-outline-primary"/>
+                                </h:column>
+                            </h:dataTable>
+                        </h:form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+</html>
