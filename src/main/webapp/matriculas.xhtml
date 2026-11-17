@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:pt="jakarta.faces.passthrough">
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="titulo">Matrículas - YachayKard</ui:define>
+
+    <ui:define name="contenido">
+        <h2 class="mb-1">Matrículas</h2>
+        <p class="text-muted mb-3">Un estudiante tiene una sola matrícula activa por año. Las matrículas no se borran:
+            se marcan como retiro o traslado.</p>
+
+        <h:messages styleClass="list-unstyled" infoClass="alert alert-success" errorClass="alert alert-danger"/>
+
+        <div class="card mb-4">
+            <div class="card-header fw-bold">Nueva matrícula · Año lectivo #{matriculaBean.anioLectivo}</div>
+            <h:form id="formMatricula">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <h:outputLabel for="estudiante" value="Estudiante *" styleClass="form-label"/>
+                            <h:selectOneMenu id="estudiante" value="#{matriculaBean.nueva.idEstudiante}"
+                                             styleClass="form-select">
+                                <f:selectItem itemValue="0" itemLabel="— Seleccione —"/>
+                                <f:selectItems value="#{matriculaBean.estudiantes}" var="e"
+                                               itemValue="#{e.idEstudiante}"
+                                               itemLabel="#{e.apellidos}, #{e.nombres} (DNI #{e.dni})"/>
+                            </h:selectOneMenu>
+                        </div>
+                        <div class="col-md-3">
+                            <h:outputLabel for="seccionNueva" value="Sección *" styleClass="form-label"/>
+                            <h:selectOneMenu id="seccionNueva" value="#{matriculaBean.nueva.idSeccion}"
+                                             styleClass="form-select">
+                                <f:selectItem itemValue="0" itemLabel="— Seleccione —"/>
+                                <f:selectItems value="#{matriculaBean.secciones}" var="s" itemValue="#{s.idSeccion}"
+                                               itemLabel="#{matriculaBean.nombreSeccion(s)}"/>
+                            </h:selectOneMenu>
+                        </div>
+                        <div class="col-md-4">
+                            <h:outputLabel for="fecha" value="Fecha de matrícula *" styleClass="form-label"/>
+                            <h:inputText id="fecha" value="#{matriculaBean.nueva.fechaMatricula}"
+                                         styleClass="form-control"
+                                         pt:type="date" converterMessage="Fecha no válida.">
+                                <f:convertDateTime type="localDate" pattern="yyyy-MM-dd"/>
+                            </h:inputText>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-end">
+                    <h:commandButton value="Matricular" action="#{matriculaBean.matricular}"
+                                     styleClass="btn btn-primary"/>
+                </div>
+            </h:form>
+        </div>
+
+        <h:form id="formLista">
+            <div class="row g-3 align-items-end mb-3">
+                <div class="col-md-4">
+                    <h:outputLabel for="seccion" value="Ver matrículas de la sección" styleClass="form-label"/>
+                    <h:selectOneMenu id="seccion" value="#{matriculaBean.idSeccion}" styleClass="form-select">
+                        <f:selectItem itemValue="0" itemLabel="— Seleccione —"/>
+                        <f:selectItems value="#{matriculaBean.secciones}" var="s" itemValue="#{s.idSeccion}"
+                                       itemLabel="#{matriculaBean.nombreSeccion(s)}"/>
+                        <f:ajax listener="#{matriculaBean.cargarMatriculas}" render="formLista"/>
+                    </h:selectOneMenu>
+                </div>
+                <div class="col-md-8 text-muted">
+                    <h:outputText value="Matrículas activas: #{matriculaBean.activas} de #{matriculaBean.aforo}"
+                                  rendered="#{matriculaBean.idSeccion != 0}"/>
+                </div>
+            </div>
+
+            <h:dataTable value="#{matriculaBean.matriculas}" var="m"
+                         styleClass="table table-hover align-middle bg-white border"
+                         rendered="#{not empty matriculaBean.matriculas}">
+                <h:column>
+                    <f:facet name="header">Estudiante</f:facet>
+                    #{matriculaBean.nombreEstudiante(m.idEstudiante)}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Fecha</f:facet>
+                    #{m.fechaMatricula}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Estado</f:facet>
+                    <span class="badge #{m.estado == 'Activa' ? 'bg-success' : 'bg-secondary'}">#{m.estado}</span>
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Acciones</f:facet>
+                    <h:commandButton value="Retirar" action="#{matriculaBean.cambiarEstado(m, 'Retirado')}"
+                                     rendered="#{m.estado == 'Activa'}" styleClass="btn btn-sm btn-outline-danger me-1"
+                                     onclick="return confirm('¿Registrar el retiro del estudiante?');"/>
+                    <h:commandButton value="Trasladar" action="#{matriculaBean.cambiarEstado(m, 'Trasladado')}"
+                                     rendered="#{m.estado == 'Activa'}" styleClass="btn btn-sm btn-outline-secondary"
+                                     onclick="return confirm('¿Registrar el traslado del estudiante a otro colegio?');"/>
+                </h:column>
+            </h:dataTable>
+            <h:outputText value="Esta sección aún no tiene matrículas en el año." styleClass="text-muted"
+                          rendered="#{matriculaBean.idSeccion != 0 and empty matriculaBean.matriculas}"/>
+        </h:form>
+    </ui:define>
+
+</ui:composition>
+</html>
