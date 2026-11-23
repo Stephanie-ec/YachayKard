@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="titulo">Asignación de cursos - YachayKard</ui:define>
+
+    <ui:define name="contenido">
+        <h2 class="mb-1">Asignación de cursos</h2>
+        <p class="text-muted mb-3">Cada curso tiene un docente por sección. Las competencias transversales
+            (TIC y Gestiona su aprendizaje) son la nota de Tutoría: se asignan al tutor de la sección.</p>
+
+        <h:messages styleClass="list-unstyled" infoClass="alert alert-success" errorClass="alert alert-danger"/>
+
+        <div class="card mb-4">
+            <div class="card-header fw-bold">Nueva asignación · Año #{asignacionBean.nueva.anioAcademico}</div>
+            <h:form id="formAsignacion">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <h:outputLabel for="docente" value="Docente *" styleClass="form-label"/>
+                            <h:selectOneMenu id="docente" value="#{asignacionBean.nueva.idDocente}" styleClass="form-select">
+                                <f:selectItem itemValue="0" itemLabel="— Seleccione —"/>
+                                <f:selectItems value="#{asignacionBean.docentes}" var="d" itemValue="#{d.idDocente}"
+                                               itemLabel="#{d.apellidos}, #{d.nombres}"/>
+                            </h:selectOneMenu>
+                        </div>
+                        <div class="col-md-5">
+                            <h:outputLabel for="curso" value="Curso *" styleClass="form-label"/>
+                            <h:selectOneMenu id="curso" value="#{asignacionBean.nueva.idCurso}" styleClass="form-select">
+                                <f:selectItem itemValue="0" itemLabel="— Seleccione —"/>
+                                <f:selectItems value="#{asignacionBean.cursos}" var="c" itemValue="#{c.idCurso}"
+                                               itemLabel="#{c.nombreCurso}"/>
+                            </h:selectOneMenu>
+                        </div>
+                        <div class="col-md-3">
+                            <h:outputLabel for="seccion" value="Sección *" styleClass="form-label"/>
+                            <h:selectOneMenu id="seccion" value="#{asignacionBean.nueva.idSeccion}" styleClass="form-select">
+                                <f:selectItem itemValue="0" itemLabel="— Seleccione —"/>
+                                <f:selectItems value="#{asignacionBean.secciones}" var="s" itemValue="#{s.idSeccion}"
+                                               itemLabel="#{asignacionBean.nombreSeccion(s.idSeccion)}"/>
+                            </h:selectOneMenu>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-end">
+                    <h:commandButton value="Asignar" action="#{asignacionBean.guardar}" styleClass="btn btn-primary"/>
+                </div>
+            </h:form>
+        </div>
+
+        <h:form id="formLista">
+            <h:dataTable value="#{asignacionBean.asignaciones}" var="a"
+                         styleClass="table table-hover align-middle bg-white border"
+                         rendered="#{not empty asignacionBean.asignaciones}">
+                <h:column>
+                    <f:facet name="header">Sección</f:facet>
+                    #{asignacionBean.nombreSeccion(a.idSeccion)}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Curso</f:facet>
+                    #{asignacionBean.nombreCurso(a.idCurso)}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Docente</f:facet>
+                    #{asignacionBean.nombreDocente(a.idDocente)}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Año</f:facet>
+                    #{a.anioAcademico}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Acciones</f:facet>
+                    <h:commandButton value="Quitar" action="#{asignacionBean.eliminar(a)}"
+                                     styleClass="btn btn-sm btn-outline-danger"
+                                     onclick="return confirm('¿Quitar esta asignación?');"/>
+                </h:column>
+            </h:dataTable>
+            <h:outputText value="Aún no hay asignaciones." styleClass="text-muted"
+                          rendered="#{empty asignacionBean.asignaciones}"/>
+        </h:form>
+    </ui:define>
+
+</ui:composition>
+</html>

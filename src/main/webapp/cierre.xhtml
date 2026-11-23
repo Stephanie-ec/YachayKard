@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="titulo">Cierre del periodo - YachayKard</ui:define>
+
+    <ui:define name="contenido">
+        <h2 class="mb-1">Cierre del periodo</h2>
+        <p class="text-muted mb-3">El sistema sugiere el nivel más frecuente de los meses (en empate, el del último mes).
+            Usted lo confirma o lo cambia. En el nivel C la conclusión descriptiva es obligatoria.</p>
+
+        <h:messages styleClass="list-unstyled" infoClass="alert alert-success" errorClass="alert alert-danger"/>
+
+        <h:form id="formCierre">
+            <div class="row g-3 mb-3 d-print-none">
+                <div class="col-md-4">
+                    <h:outputLabel for="asignacion" value="Curso – sección" styleClass="form-label"/>
+                    <h:selectOneMenu id="asignacion" value="#{cierreBean.idAsignacion}" styleClass="form-select">
+                        <f:selectItem itemValue="0" itemLabel="— Seleccione —"/>
+                        <f:selectItems value="#{cierreBean.asignaciones}" var="o" itemValue="#{o.valor}" itemLabel="#{o.etiqueta}"/>
+                        <f:ajax listener="#{cierreBean.cambiarAsignacion}" render="formCierre"/>
+                    </h:selectOneMenu>
+                </div>
+                <div class="col-md-5">
+                    <h:outputLabel for="competencia" value="Competencia" styleClass="form-label"/>
+                    <h:selectOneMenu id="competencia" value="#{cierreBean.idCompetencia}" styleClass="form-select">
+                        <f:selectItem itemValue="0" itemLabel="— Seleccione —"/>
+                        <f:selectItems value="#{cierreBean.competencias}" var="c" itemValue="#{c.idCompetencia}"
+                                       itemLabel="#{c.descripcion}"/>
+                        <f:ajax listener="#{cierreBean.cargar}" render="formCierre"/>
+                    </h:selectOneMenu>
+                </div>
+                <div class="col-md-3">
+                    <h:outputLabel for="periodo" value="Periodo" styleClass="form-label"/>
+                    <h:selectOneMenu id="periodo" value="#{cierreBean.idPeriodo}" styleClass="form-select">
+                        <f:selectItem itemValue="0" itemLabel="— Seleccione —"/>
+                        <f:selectItems value="#{cierreBean.periodos}" var="p" itemValue="#{p.idPeriodo}"
+                                       itemLabel="#{p.nombrePeriodo}"/>
+                        <f:ajax listener="#{cierreBean.cargar}" render="formCierre"/>
+                    </h:selectOneMenu>
+                </div>
+            </div>
+
+            <!-- REPORTE DE CIERRE (RF-31): se muestra cuando la competencia ya está cerrada -->
+            <h:panelGroup layout="block" rendered="#{cierreBean.cerrado}">
+                <div class="alert alert-secondary d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>Reporte de cierre</strong> · #{cierreBean.nombreAsignacion} · #{cierreBean.nombrePeriodo}<br/>
+                        <span class="small">#{cierreBean.nombreCompetencia}</span>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-dark d-print-none" onclick="window.print()">Imprimir</button>
+                </div>
+            </h:panelGroup>
+
+            <h:dataTable id="tabla" value="#{cierreBean.filas}" var="f"
+                         styleClass="table table-hover align-middle bg-white border"
+                         rendered="#{not empty cierreBean.filas}">
+                <h:column>
+                    <f:facet name="header">N.°</f:facet>
+                    #{f.orden}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Estudiante</f:facet>
+                    #{f.estudiante}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Niveles por mes</f:facet>
+                    <span class="small">#{f.nivelesMes}</span>
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Sugerido</f:facet>
+                    #{empty f.sugerido ? '—' : f.sugerido}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Nivel final</f:facet>
+                    <h:selectOneMenu id="nivelFinal" value="#{f.nivelFinal}" styleClass="form-select form-select-sm"
+                                     disabled="#{f.cerrada}" rendered="#{not cierreBean.cerrado}">
+                        <f:selectItem itemLabel="—" noSelectionOption="true"/>
+                        <f:selectItem itemValue="AD" itemLabel="AD"/>
+                        <f:selectItem itemValue="A" itemLabel="A"/>
+                        <f:selectItem itemValue="B" itemLabel="B"/>
+                        <f:selectItem itemValue="C" itemLabel="C"/>
+                    </h:selectOneMenu>
+                    <h:outputText value="#{f.nivelFinal}" styleClass="fw-bold" rendered="#{cierreBean.cerrado}"/>
+                    <h:outputText value="cambiado" styleClass="badge bg-warning text-dark ms-1"
+                                  rendered="#{f.cambiado and not cierreBean.cerrado}"/>
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Conclusión descriptiva</f:facet>
+                    <h:inputTextarea id="conclusion" value="#{f.conclusion}" styleClass="form-control form-control-sm"
+                                     rows="2" disabled="#{f.cerrada}" rendered="#{not cierreBean.cerrado}"/>
+                    <h:outputText value="#{f.conclusion}" styleClass="small" rendered="#{cierreBean.cerrado}"/>
+                </h:column>
+            </h:dataTable>
+
+            <h:panelGroup layout="block" styleClass="d-flex justify-content-end d-print-none"
+                          rendered="#{not empty cierreBean.filas and not cierreBean.cerrado}">
+                <h:commandButton value="Guardar y cerrar" action="#{cierreBean.cerrar}" styleClass="btn btn-primary"
+                                 onclick="return confirm('Al cerrar, las calificaciones de esta competencia ya no se podrán editar. ¿Continuar?');"/>
+            </h:panelGroup>
+        </h:form>
+    </ui:define>
+
+</ui:composition>
+</html>
