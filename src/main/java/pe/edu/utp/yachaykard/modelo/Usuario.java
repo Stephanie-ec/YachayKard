@@ -13,6 +13,7 @@ public class Usuario implements Serializable {
     private String password;
     private int idRol;
     private int idInstitucion;
+    private boolean activo = true;
 
     /** Constructor vacío requerido por JSF y por el DAO al mapear filas. */
     public Usuario() {
@@ -73,6 +74,15 @@ public class Usuario implements Serializable {
 
     public void setIdInstitucion(int idInstitucion) {
         this.idInstitucion = idInstitucion;
+    }
+
+    /** @return true si el usuario puede iniciar sesión */
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
     }
 
     @Override

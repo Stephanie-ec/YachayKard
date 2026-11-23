@@ -10,6 +10,7 @@
 
 USE
 yachaykard_db;
+SET SQL_SAFE_UPDATES = 0;
 
 -- 1. Matemática y Comunicación ya existen (script 07): se actualizan sus códigos
 --    y se completan sus competencias, sin borrar las calificaciones de prueba.
@@ -109,3 +110,5 @@ FROM curso cu
          LEFT JOIN competencia co ON co.id_curso = cu.id_curso
 GROUP BY cu.id_curso, cu.codigo_siagie, cu.nombre_curso
 ORDER BY cu.codigo_siagie;
+
+SET SQL_SAFE_UPDATES = 1;

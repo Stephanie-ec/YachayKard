@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="titulo">Usuarios - YachayKard</ui:define>
+
+    <ui:define name="contenido">
+        <h2 class="mb-1">Usuarios</h2>
+        <p class="text-muted mb-3">Cuentas de acceso al sistema. Los usuarios no se eliminan: se desactivan.</p>
+
+        <h:messages styleClass="list-unstyled" infoClass="alert alert-success"
+                    warnClass="alert alert-warning" errorClass="alert alert-danger"/>
+
+        <div class="card mb-4">
+            <div class="card-header fw-bold">#{usuarioBean.editando ? 'Editar usuario' : 'Nuevo usuario'}</div>
+            <h:form id="formUsuario">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <h:outputLabel for="username" value="Usuario *" styleClass="form-label"/>
+                            <h:inputText id="username" value="#{usuarioBean.usuario.username}" styleClass="form-control"
+                                         maxlength="50" required="true" requiredMessage="El usuario es requerido."/>
+                        </div>
+                        <div class="col-md-4">
+                            <h:outputLabel for="rol" value="Rol *" styleClass="form-label"/>
+                            <h:selectOneMenu id="rol" value="#{usuarioBean.usuario.idRol}" styleClass="form-select"
+                                             disabled="#{usuarioBean.editando}">
+                                <f:selectItem itemValue="0" itemLabel="— Seleccione —"/>
+                                <f:selectItems value="#{usuarioBean.roles}" var="r"
+                                               itemValue="#{r.idRol}" itemLabel="#{r.nombreRol}"/>
+                                <f:ajax render="persona" execute="@this"/>
+                            </h:selectOneMenu>
+                        </div>
+                        <div class="col-md-4">
+                            <h:outputLabel for="clave" value="#{usuarioBean.editando ? 'Nueva contraseña (opcional)' : 'Contraseña *'}"
+                                           styleClass="form-label"/>
+                            <h:inputSecret id="clave" value="#{usuarioBean.clave}" styleClass="form-control"
+                                           autocomplete="new-password"/>
+                            <div class="form-text">Mínimo 8 caracteres, con letras y números.</div>
+                        </div>
+                    </div>
+
+                    <h:panelGroup id="persona" layout="block">
+                        <h:panelGroup layout="block" styleClass="row g-3 mt-1" rendered="#{usuarioBean.pidePersona}">
+                            <div class="col-md-3">
+                                <h:outputLabel for="dni" value="DNI *" styleClass="form-label"/>
+                                <h:inputText id="dni" value="#{usuarioBean.persona.dni}" styleClass="form-control" maxlength="8"/>
+                            </div>
+                            <div class="col-md-3">
+                                <h:outputLabel for="nombres" value="Nombres *" styleClass="form-label"/>
+                                <h:inputText id="nombres" value="#{usuarioBean.persona.nombres}" styleClass="form-control"/>
+                            </div>
+                            <div class="col-md-3">
+                                <h:outputLabel for="apellidos" value="Apellidos *" styleClass="form-label"/>
+                                <h:inputText id="apellidos" value="#{usuarioBean.persona.apellidos}" styleClass="form-control"/>
+                            </div>
+                            <h:panelGroup layout="block" styleClass="col-md-3" rendered="#{usuarioBean.nombreRolElegido == 'Docente'}">
+                                <h:outputLabel for="especialidad" value="Especialidad" styleClass="form-label"/>
+                                <h:inputText id="especialidad" value="#{usuarioBean.persona.especialidad}" styleClass="form-control"/>
+                            </h:panelGroup>
+                        </h:panelGroup>
+                    </h:panelGroup>
+                </div>
+                <div class="card-footer d-flex justify-content-end gap-2">
+                    <h:commandButton value="Cancelar" action="#{usuarioBean.cancelar}" immediate="true"
+                                     styleClass="btn btn-secondary"/>
+                    <h:commandButton value="Guardar" action="#{usuarioBean.guardar}" styleClass="btn btn-primary"/>
+                </div>
+            </h:form>
+        </div>
+
+        <h:form id="formLista">
+            <h:dataTable value="#{usuarioBean.usuarios}" var="u"
+                         styleClass="table table-hover align-middle bg-white border">
+                <h:column>
+                    <f:facet name="header">Usuario</f:facet>
+                    #{u.username}
+                    <h:outputText value="(usted)" styleClass="text-muted small ms-1" rendered="#{usuarioBean.esUsuarioSesion(u)}"/>
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Rol</f:facet>
+                    #{usuarioBean.nombreRol(u.idRol)}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Estado</f:facet>
+                    <span class="badge #{u.activo ? 'bg-success' : 'bg-secondary'}">#{u.activo ? 'Activo' : 'Inactivo'}</span>
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Acciones</f:facet>
+                    <h:commandButton value="Editar" action="#{usuarioBean.editar(u)}"
+                                     styleClass="btn btn-sm btn-outline-primary me-1"/>
+                    <h:commandButton value="#{u.activo ? 'Desactivar' : 'Activar'}" action="#{usuarioBean.cambiarEstado(u)}"
+                                     disabled="#{usuarioBean.esUsuarioSesion(u)}"
+                                     styleClass="btn btn-sm #{u.activo ? 'btn-outline-danger' : 'btn-outline-success'}"/>
+                </h:column>
+            </h:dataTable>
+        </h:form>
+    </ui:define>
+
+</ui:composition>
+</html>

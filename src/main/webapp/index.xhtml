@@ -10,7 +10,7 @@
         <h2 class="mb-1">Panel principal</h2>
         <p class="text-muted mb-4">Bienvenido(a), #{sesionBean.username} (#{sesionBean.rol}).</p>
 
-        <h:messages styleClass="list-unstyled" errorClass="alert alert-danger"/>
+        <h:messages styleClass="list-unstyled" infoClass="alert alert-success" errorClass="alert alert-danger"/>
 
         <div class="row g-3">
             <div class="col-sm-6 col-lg-3">
@@ -46,6 +46,32 @@
                 </div>
             </div>
         </div>
+
+        <h:panelGroup layout="block" styleClass="card mt-4" rendered="#{sesionBean.administrador}">
+            <div class="card-header fw-bold">Riesgo de deserción (último cálculo de cada estudiante)</div>
+            <div class="card-body">
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-4">
+                        <div class="text-muted small">Riesgo alto</div>
+                        <div class="fs-3 fw-bold text-danger">#{panelBean.riesgoAlto}</div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="text-muted small">Riesgo medio</div>
+                        <div class="fs-3 fw-bold text-warning">#{panelBean.riesgoMedio}</div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="text-muted small">Riesgo bajo</div>
+                        <div class="fs-3 fw-bold text-success">#{panelBean.riesgoBajo}</div>
+                    </div>
+                </div>
+                <p class="text-muted small mb-2">Señales: 3 o más faltas sin justificar en 30 días,
+                    una competencia en nivel C o una incidencia grave en 60 días.</p>
+                <h:form id="formRiesgo">
+                    <h:commandButton value="Calcular riesgo de todos los estudiantes" action="#{panelBean.calcularRiesgo}"
+                                     styleClass="btn btn-outline-primary"/>
+                </h:form>
+            </div>
+        </h:panelGroup>
     </ui:define>
 
 </ui:composition>
