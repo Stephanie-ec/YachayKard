@@ -90,4 +90,15 @@ public interface ReporteCierreDAO {
      * @throws SQLException si ocurre un error en la base de datos
      */
     boolean estaCerrado(int idEstudiante, int idCompetencia, int idPeriodo) throws SQLException;
+
+    /**
+     * Busca el nivel final de un estudiante en una competencia y un periodo (RF-30).
+     *
+     * @param idEstudiante  estudiante
+     * @param idCompetencia competencia
+     * @param idPeriodo     periodo
+     * @return el registro o null si aún no se cierra
+     * @throws SQLException si ocurre un error en la base de datos
+     */
+    ReporteCierre buscar(int idEstudiante, int idCompetencia, int idPeriodo) throws SQLException;
 }

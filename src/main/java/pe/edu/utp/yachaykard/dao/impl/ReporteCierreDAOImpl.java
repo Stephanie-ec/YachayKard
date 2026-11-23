@@ -5,10 +5,10 @@ import pe.edu.utp.yachaykard.modelo.ReporteCierre;
 import pe.edu.utp.yachaykard.util.ConexionBD;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,9 +18,22 @@ import java.util.List;
  */
 public class ReporteCierreDAOImpl implements ReporteCierreDAO {
 
+    /**
+     * Columnas que se leen de la tabla reporte_cierre.
+     */
+    private static final String COLUMNAS =
+            "id_reporte, fecha_generacion, estado, nivel_final, id_estudiante, id_competencia, id_periodo, "
+                    + "conclusion_descriptiva";
+
+    /**
+     * Inicio común de las consultas de esta tabla.
+     */
+    private static final String CONSULTA_BASE = "SELECT " + COLUMNAS + " FROM reporte_cierre";
+
     @Override
     public void insertar(ReporteCierre reporteCierre) throws SQLException {
-        String sql = "INSERT INTO reporte_cierre (fecha_generacion, estado, nivel_final, id_estudiante, id_competencia, id_periodo) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO reporte_cierre (fecha_generacion, estado, nivel_final, id_estudiante, id_competencia, id_periodo, "
+                + "conclusion_descriptiva) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -32,13 +45,14 @@ public class ReporteCierreDAOImpl implements ReporteCierreDAO {
 
     @Override
     public void actualizar(ReporteCierre reporteCierre) throws SQLException {
-        String sql = "UPDATE reporte_cierre SET fecha_generacion = ?, estado = ?, nivel_final = ?, id_estudiante = ?, id_competencia = ?, id_periodo = ? WHERE id_reporte = ?";
+        String sql = "UPDATE reporte_cierre SET fecha_generacion = ?, estado = ?, nivel_final = ?, id_estudiante = ?, "
+                + "id_competencia = ?, id_periodo = ?, conclusion_descriptiva = ? WHERE id_reporte = ?";
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             asignarParametros(ps, reporteCierre);
-            ps.setInt(7, reporteCierre.getIdReporte());
+            ps.setInt(8, reporteCierre.getIdReporte());
             ps.executeUpdate();
         }
     }
@@ -57,13 +71,13 @@ public class ReporteCierreDAOImpl implements ReporteCierreDAO {
 
     @Override
     public ReporteCierre buscarPorId(int idReporte) throws SQLException {
-        List<ReporteCierre> lista = consultar("SELECT * FROM reporte_cierre WHERE id_reporte = ?", idReporte);
+        List<ReporteCierre> lista = consultar(CONSULTA_BASE + " WHERE id_reporte = ?", idReporte);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<ReporteCierre> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM reporte_cierre";
+        String sql = CONSULTA_BASE;
         List<ReporteCierre> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -91,7 +105,7 @@ public class ReporteCierreDAOImpl implements ReporteCierreDAO {
 
     @Override
     public List<ReporteCierre> listarPorEstudiante(int idEstudiante) throws SQLException {
-        return consultar("SELECT * FROM reporte_cierre WHERE id_estudiante = ? ORDER BY id_periodo", idEstudiante);
+        return consultar(CONSULTA_BASE + " WHERE id_estudiante = ? ORDER BY id_periodo", idEstudiante);
     }
 
     @Override
@@ -108,6 +122,23 @@ public class ReporteCierreDAOImpl implements ReporteCierreDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
+            }
+        }
+    }
+
+    @Override
+    public ReporteCierre buscar(int idEstudiante, int idCompetencia, int idPeriodo) throws SQLException {
+        String sql = CONSULTA_BASE + " WHERE id_estudiante = ? AND id_competencia = ? AND id_periodo = ?";
+
+        try (Connection con = ConexionBD.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idEstudiante);
+            ps.setInt(2, idCompetencia);
+            ps.setInt(3, idPeriodo);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? mapearReporteCierre(rs) : null;
             }
         }
     }
@@ -140,17 +171,18 @@ public class ReporteCierreDAOImpl implements ReporteCierreDAO {
     /**
      * Asigna los campos comunes de INSERT y UPDATE, en el orden de las columnas.
      *
-     * @param ps sentencia preparada
+     * @param ps            sentencia preparada
      * @param reporteCierre datos de origen
      * @throws SQLException si falla la asignación de un parámetro
      */
     private void asignarParametros(PreparedStatement ps, ReporteCierre reporteCierre) throws SQLException {
-        ps.setDate(1, reporteCierre.getFechaGeneracion() != null ? Date.valueOf(reporteCierre.getFechaGeneracion()) : null);
+        ps.setObject(1, reporteCierre.getFechaGeneracion());
         ps.setString(2, reporteCierre.getEstado());
         ps.setString(3, reporteCierre.getNivelFinal());
         ps.setInt(4, reporteCierre.getIdEstudiante());
         ps.setInt(5, reporteCierre.getIdCompetencia());
         ps.setInt(6, reporteCierre.getIdPeriodo());
+        ps.setString(7, reporteCierre.getConclusionDescriptiva());
     }
 
     /**
@@ -163,12 +195,13 @@ public class ReporteCierreDAOImpl implements ReporteCierreDAO {
     private ReporteCierre mapearReporteCierre(ResultSet rs) throws SQLException {
         ReporteCierre reporteCierre = new ReporteCierre();
         reporteCierre.setIdReporte(rs.getInt("id_reporte"));
-        reporteCierre.setFechaGeneracion(rs.getDate("fecha_generacion") != null ? rs.getDate("fecha_generacion").toLocalDate() : null);
+        reporteCierre.setFechaGeneracion(rs.getObject("fecha_generacion", LocalDate.class));
         reporteCierre.setEstado(rs.getString("estado"));
         reporteCierre.setNivelFinal(rs.getString("nivel_final"));
         reporteCierre.setIdEstudiante(rs.getInt("id_estudiante"));
         reporteCierre.setIdCompetencia(rs.getInt("id_competencia"));
         reporteCierre.setIdPeriodo(rs.getInt("id_periodo"));
+        reporteCierre.setConclusionDescriptiva(rs.getString("conclusion_descriptiva"));
         return reporteCierre;
     }
 }

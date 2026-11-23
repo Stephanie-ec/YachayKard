@@ -16,6 +16,7 @@ public class ReporteCierre implements Serializable {
     private int idEstudiante;
     private int idCompetencia;
     private int idPeriodo;
+    private String conclusionDescriptiva;
 
     /** Constructor vacío requerido por JSF y por el DAO al mapear filas. */
     public ReporteCierre() {
@@ -96,6 +97,15 @@ public class ReporteCierre implements Serializable {
 
     public void setIdPeriodo(int idPeriodo) {
         this.idPeriodo = idPeriodo;
+    }
+
+    /** @return conclusión descriptiva del nivel final (obligatoria en C) */
+    public String getConclusionDescriptiva() {
+        return conclusionDescriptiva;
+    }
+
+    public void setConclusionDescriptiva(String conclusionDescriptiva) {
+        this.conclusionDescriptiva = conclusionDescriptiva;
     }
 
     @Override
