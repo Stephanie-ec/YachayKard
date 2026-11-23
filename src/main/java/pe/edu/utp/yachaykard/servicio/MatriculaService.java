@@ -1,8 +1,11 @@
 package pe.edu.utp.yachaykard.servicio;
 
 import pe.edu.utp.yachaykard.dao.MatriculaDAO;
+import pe.edu.utp.yachaykard.dao.SeccionDAO;
 import pe.edu.utp.yachaykard.dao.impl.MatriculaDAOImpl;
+import pe.edu.utp.yachaykard.dao.impl.SeccionDAOImpl;
 import pe.edu.utp.yachaykard.modelo.Matricula;
+import pe.edu.utp.yachaykard.modelo.Seccion;
 
 import java.sql.SQLException;
 import java.util.Set;
@@ -10,33 +13,40 @@ import java.util.regex.Pattern;
 
 /**
  * Reglas de negocio de la matrícula (RF-12):
- * un estudiante solo puede tener una matrícula "Activa" por año lectivo.
- * Las matrículas "Retirado" o "Trasladado" no bloquean una nueva.
- * <p>
- * El DAO se recibe en el constructor para poder simularlo con Mockito en las pruebas.
+ * <ul>
+ *     <li>Un estudiante solo puede tener una matrícula "Activa" por año lectivo.</li>
+ *     <li>Una sección no puede tener más matrículas activas que su aforo.</li>
+ *     <li>Las matrículas no se borran: pasan a "Retirado" o "Trasladado".</li>
+ * </ul>
+ * Los DAO se reciben en el constructor para poder simularlos con Mockito en las pruebas.
  */
 public class MatriculaService {
 
     /** Estado de una matrícula vigente. */
     public static final String ACTIVA = "Activa";
+    public static final String RETIRADO = "Retirado";
+    public static final String TRASLADADO = "Trasladado";
 
-    private static final Set<String> ESTADOS = Set.of(ACTIVA, "Retirado", "Trasladado");
+    private static final Set<String> ESTADOS = Set.of(ACTIVA, RETIRADO, TRASLADADO);
     private static final Pattern ANIO = Pattern.compile("\\d{4}");
 
     private final MatriculaDAO matriculaDAO;
+    private final SeccionDAO seccionDAO;
 
     /** Constructor que usa la aplicación: trabaja con la base de datos. */
     public MatriculaService() {
-        this(new MatriculaDAOImpl());
+        this(new MatriculaDAOImpl(), new SeccionDAOImpl());
     }
 
     /**
      * Constructor para pruebas.
      *
      * @param matriculaDAO acceso a matrículas
+     * @param seccionDAO   acceso a secciones (para el aforo)
      */
-    public MatriculaService(MatriculaDAO matriculaDAO) {
+    public MatriculaService(MatriculaDAO matriculaDAO, SeccionDAO seccionDAO) {
         this.matriculaDAO = matriculaDAO;
+        this.seccionDAO = seccionDAO;
     }
 
     /**
@@ -44,16 +54,38 @@ public class MatriculaService {
      *
      * @param matricula datos de la matrícula
      * @throws IllegalArgumentException si faltan datos o son incorrectos
-     * @throws IllegalStateException    si el estudiante ya tiene una matrícula activa ese año
+     * @throws IllegalStateException    si ya tiene matrícula activa ese año o la sección está llena
      * @throws SQLException             si ocurre un error en la base de datos
      */
     public void registrar(Matricula matricula) throws SQLException {
         validarDatos(matricula);
-        if (matriculaDAO.existeMatriculaActiva(matricula.getIdEstudiante(), matricula.getAnioLectivo())) {
-            throw new IllegalStateException(
-                    "El estudiante ya tiene una matrícula activa en el año lectivo " + matricula.getAnioLectivo() + ".");
+        if (ACTIVA.equals(matricula.getEstado())) {
+            validarActivacion(matricula);
         }
         matriculaDAO.insertar(matricula);
+    }
+
+    /**
+     * Cambia el estado de una matrícula existente (por ejemplo, Activa a Retirado).
+     *
+     * @param matricula   matrícula elegida
+     * @param nuevoEstado Activa, Retirado o Trasladado
+     * @throws IllegalArgumentException si el estado no es válido
+     * @throws IllegalStateException    si al reactivarla se rompe una regla
+     * @throws SQLException             si ocurre un error en la base de datos
+     */
+    public void cambiarEstado(Matricula matricula, String nuevoEstado) throws SQLException {
+        if (nuevoEstado == null || !ESTADOS.contains(nuevoEstado)) {
+            throw new IllegalArgumentException("El estado debe ser Activa, Retirado o Trasladado.");
+        }
+        if (nuevoEstado.equals(matricula.getEstado())) {
+            return;
+        }
+        if (ACTIVA.equals(nuevoEstado)) {
+            validarActivacion(matricula);
+        }
+        matricula.setEstado(nuevoEstado);
+        matriculaDAO.actualizar(matricula);
     }
 
     /**
@@ -75,8 +107,29 @@ public class MatriculaService {
         if (matricula.getAnioLectivo() == null || !ANIO.matcher(matricula.getAnioLectivo()).matches()) {
             throw new IllegalArgumentException("El año lectivo debe tener 4 dígitos.");
         }
-        if (!ESTADOS.contains(matricula.getEstado())) {
+        if (matricula.getEstado() == null || !ESTADOS.contains(matricula.getEstado())) {
             throw new IllegalArgumentException("El estado debe ser Activa, Retirado o Trasladado.");
+        }
+        if (matricula.getFechaMatricula() == null) {
+            throw new IllegalArgumentException("Ingrese la fecha de matrícula.");
+        }
+    }
+
+    private void validarActivacion(Matricula matricula) throws SQLException {
+        if (matriculaDAO.existeMatriculaActiva(matricula.getIdEstudiante(), matricula.getAnioLectivo())) {
+            throw new IllegalStateException(
+                    "El estudiante ya tiene una matrícula activa en el año lectivo " + matricula.getAnioLectivo() + ".");
+        }
+        Seccion seccion = seccionDAO.buscarPorId(matricula.getIdSeccion());
+        if (seccion == null) {
+            throw new IllegalArgumentException("La sección no existe.");
+        }
+        long activas = matriculaDAO.listarPorSeccion(matricula.getIdSeccion()).stream()
+                .filter(m -> ACTIVA.equals(m.getEstado()))
+                .filter(m -> matricula.getAnioLectivo().equals(m.getAnioLectivo()))
+                .count();
+        if (activas >= seccion.getAforo()) {
+            throw new IllegalStateException("La sección ya completó su aforo de " + seccion.getAforo() + " estudiantes.");
         }
     }
 }
