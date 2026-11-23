@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,40 +21,76 @@ public class UsuarioDAOImpl implements UsuarioDAO {
 
     /** Columnas que se leen de la tabla usuario. */
     private static final String COLUMNAS =
-            "id_usuario, username, password, id_rol, id_institucion";
+            "id_usuario, username, password, id_rol, id_institucion, activo";
 
     /** Inicio común de las consultas de esta tabla. */
     private static final String CONSULTA_BASE = "SELECT " + COLUMNAS + " FROM usuario";
 
     @Override
     public void insertar(Usuario usuario) throws SQLException {
-        String sql = "INSERT INTO usuario (username, password, id_rol, id_institucion) VALUES (?, ?, ?, ?)";
+        registrar(usuario);
+    }
+
+    @Override
+    public int registrar(Usuario usuario) throws SQLException {
+        String sql = "INSERT INTO usuario (username, password, id_rol, id_institucion, activo) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection con = ConexionBD.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, usuario.getUsername());
             ps.setString(2, CifradoClave.cifrar(usuario.getPassword()));
             ps.setInt(3, usuario.getIdRol());
             ps.setInt(4, usuario.getIdInstitucion());
+            ps.setBoolean(5, usuario.isActivo());
+            ps.executeUpdate();
 
+            try (ResultSet claves = ps.getGeneratedKeys()) {
+                if (!claves.next()) {
+                    throw new SQLException("No se obtuvo el id del usuario nuevo.");
+                }
+                int id = claves.getInt(1);
+                usuario.setIdUsuario(id);
+                return id;
+            }
+        }
+    }
+
+    /**
+     * Actualiza los datos del usuario. Si password viene vacío, se conserva la contraseña actual.
+     */
+    @Override
+    public void actualizar(Usuario usuario) throws SQLException {
+        boolean cambiaClave = usuario.getPassword() != null && !usuario.getPassword().isBlank();
+        String sql = cambiaClave
+                ? "UPDATE usuario SET username = ?, id_rol = ?, id_institucion = ?, password = ? WHERE id_usuario = ?"
+                : "UPDATE usuario SET username = ?, id_rol = ?, id_institucion = ? WHERE id_usuario = ?";
+
+        try (Connection con = ConexionBD.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, usuario.getUsername());
+            ps.setInt(2, usuario.getIdRol());
+            ps.setInt(3, usuario.getIdInstitucion());
+            if (cambiaClave) {
+                ps.setString(4, CifradoClave.cifrar(usuario.getPassword()));
+                ps.setInt(5, usuario.getIdUsuario());
+            } else {
+                ps.setInt(4, usuario.getIdUsuario());
+            }
             ps.executeUpdate();
         }
     }
 
     @Override
-    public void actualizar(Usuario usuario) throws SQLException {
-        String sql = "UPDATE usuario SET username = ?, password = ?, id_rol = ?, id_institucion = ? WHERE id_usuario = ?";
+    public void cambiarEstado(int idUsuario, boolean activo) throws SQLException {
+        String sql = "UPDATE usuario SET activo = ? WHERE id_usuario = ?";
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, usuario.getUsername());
-            ps.setString(2, CifradoClave.cifrar(usuario.getPassword()));
-            ps.setInt(3, usuario.getIdRol());
-            ps.setInt(4, usuario.getIdInstitucion());
-            ps.setInt(5, usuario.getIdUsuario());
-
+            ps.setBoolean(1, activo);
+            ps.setInt(2, idUsuario);
             ps.executeUpdate();
         }
     }
@@ -91,7 +128,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
 
     @Override
     public List<Usuario> listarTodos() throws SQLException {
-        String sql = CONSULTA_BASE;
+        String sql = CONSULTA_BASE + " ORDER BY username";
         List<Usuario> usuarios = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -122,7 +159,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
 
     @Override
     public boolean autenticar(String username, String password) throws SQLException {
-        String sql = "SELECT password FROM usuario WHERE username = ?";
+        String sql = "SELECT password FROM usuario WHERE username = ? AND activo = 1";
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -149,6 +186,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
         usuario.setPassword(rs.getString("password"));
         usuario.setIdRol(rs.getInt("id_rol"));
         usuario.setIdInstitucion(rs.getInt("id_institucion"));
+        usuario.setActivo(rs.getBoolean("activo"));
         return usuario;
     }
 }

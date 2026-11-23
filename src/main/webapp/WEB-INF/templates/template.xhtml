@@ -50,6 +50,18 @@
                         <li class="nav-item">
                             <a class="nav-link" href="#{request.contextPath}/catalogoIncidencias.xhtml">Catálogo de incidencias</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#{request.contextPath}/usuarios.xhtml">Usuarios</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#{request.contextPath}/estructura.xhtml">Grados, secciones y cursos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#{request.contextPath}/matriculas.xhtml">Matrículas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#{request.contextPath}/asignaciones.xhtml">Asignación de cursos</a>
+                        </li>
                     </ui:fragment>
 
                     <ui:fragment rendered="#{sesionBean.administrador or sesionBean.docente}">
@@ -63,9 +75,22 @@
                             <a class="nav-link" href="#{request.contextPath}/calificaciones.xhtml">Calificaciones</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="#{request.contextPath}/cierre.xhtml">Cierre del periodo</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="#{request.contextPath}/historial.xhtml">Historial del estudiante</a>
                         </li>
                     </ui:fragment>
+
+                    <li class="nav-item mt-3 text-muted small text-uppercase">Convivencia</li>
+                    <ui:fragment rendered="#{sesionBean.administrador or sesionBean.auxiliar}">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#{request.contextPath}/asistencia.xhtml">Asistencia</a>
+                        </li>
+                    </ui:fragment>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#{request.contextPath}/incidencias.xhtml">Registro de incidencias</a>
+                    </li>
                 </ul>
             </nav>
 

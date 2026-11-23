@@ -70,4 +70,23 @@ public interface UsuarioDAO {
      * @throws SQLException si ocurre un error en la base de datos
      */
     boolean autenticar(String username, String password) throws SQLException;
+
+    /**
+     * Registra un usuario y devuelve el id que le asignó la base de datos.
+     * La contraseña se guarda cifrada.
+     *
+     * @param usuario datos del usuario (password en texto plano)
+     * @return id del usuario nuevo
+     * @throws SQLException si ocurre un error en la base de datos
+     */
+    int registrar(Usuario usuario) throws SQLException;
+
+    /**
+     * Activa o desactiva un usuario. Un usuario inactivo no puede iniciar sesión.
+     *
+     * @param idUsuario usuario a cambiar
+     * @param activo    true para activar, false para desactivar
+     * @throws SQLException si ocurre un error en la base de datos
+     */
+    void cambiarEstado(int idUsuario, boolean activo) throws SQLException;
 }
