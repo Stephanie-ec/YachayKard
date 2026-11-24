@@ -5,10 +5,10 @@ import pe.edu.utp.yachaykard.modelo.Justificacion;
 import pe.edu.utp.yachaykard.util.ConexionBD;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +17,13 @@ import java.util.List;
  * Cada método abre su conexión con try-with-resources, que la cierra automáticamente.
  */
 public class JustificacionDAOImpl implements JustificacionDAO {
+
+    /** Columnas que se leen de la tabla justificacion. */
+    private static final String COLUMNAS =
+            "id_justificacion, fecha_inicio, fecha_fin, motivo, evidencia, id_estudiante, id_usuario";
+
+    /** Inicio común de las consultas de esta tabla. */
+    private static final String CONSULTA_BASE = "SELECT " + COLUMNAS + " FROM justificacion";
 
     @Override
     public void insertar(Justificacion justificacion) throws SQLException {
@@ -57,13 +64,13 @@ public class JustificacionDAOImpl implements JustificacionDAO {
 
     @Override
     public Justificacion buscarPorId(int idJustificacion) throws SQLException {
-        List<Justificacion> lista = consultar("SELECT * FROM justificacion WHERE id_justificacion = ?", idJustificacion);
+        List<Justificacion> lista = consultar(CONSULTA_BASE + " WHERE id_justificacion = ?", idJustificacion);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<Justificacion> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM justificacion";
+        String sql = CONSULTA_BASE;
         List<Justificacion> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -79,7 +86,7 @@ public class JustificacionDAOImpl implements JustificacionDAO {
 
     @Override
     public List<Justificacion> listarPorEstudiante(int idEstudiante) throws SQLException {
-        return consultar("SELECT * FROM justificacion WHERE id_estudiante = ? ORDER BY fecha_inicio DESC", idEstudiante);
+        return consultar(CONSULTA_BASE + " WHERE id_estudiante = ? ORDER BY fecha_inicio DESC", idEstudiante);
     }
 
     /**
@@ -115,8 +122,8 @@ public class JustificacionDAOImpl implements JustificacionDAO {
      * @throws SQLException si falla la asignación de un parámetro
      */
     private void asignarParametros(PreparedStatement ps, Justificacion justificacion) throws SQLException {
-        ps.setDate(1, justificacion.getFechaInicio() != null ? Date.valueOf(justificacion.getFechaInicio()) : null);
-        ps.setDate(2, justificacion.getFechaFin() != null ? Date.valueOf(justificacion.getFechaFin()) : null);
+        ps.setObject(1, justificacion.getFechaInicio());
+        ps.setObject(2, justificacion.getFechaFin());
         ps.setString(3, justificacion.getMotivo());
         ps.setString(4, justificacion.getEvidencia());
         ps.setInt(5, justificacion.getIdEstudiante());
@@ -133,8 +140,8 @@ public class JustificacionDAOImpl implements JustificacionDAO {
     private Justificacion mapearJustificacion(ResultSet rs) throws SQLException {
         Justificacion justificacion = new Justificacion();
         justificacion.setIdJustificacion(rs.getInt("id_justificacion"));
-        justificacion.setFechaInicio(rs.getDate("fecha_inicio") != null ? rs.getDate("fecha_inicio").toLocalDate() : null);
-        justificacion.setFechaFin(rs.getDate("fecha_fin") != null ? rs.getDate("fecha_fin").toLocalDate() : null);
+        justificacion.setFechaInicio(rs.getObject("fecha_inicio", LocalDate.class));
+        justificacion.setFechaFin(rs.getObject("fecha_fin", LocalDate.class));
         justificacion.setMotivo(rs.getString("motivo"));
         justificacion.setEvidencia(rs.getString("evidencia"));
         justificacion.setIdEstudiante(rs.getInt("id_estudiante"));

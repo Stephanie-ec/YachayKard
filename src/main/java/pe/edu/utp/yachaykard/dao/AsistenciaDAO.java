@@ -69,4 +69,16 @@ public interface AsistenciaDAO {
      * @throws SQLException si ocurre un error en la base de datos
      */
     List<Asistencia> listarPorEstudiante(int idEstudiante) throws SQLException;
+
+    /**
+     * Lista la asistencia de un mes de los estudiantes con matrícula activa en una sección
+     * (base del consolidado mensual, RF-21).
+     *
+     * @param idSeccion sección a consultar
+     * @param anio      año (por ejemplo 2026)
+     * @param mes       mes de 1 a 12
+     * @return registros del mes, ordenados por estudiante y fecha
+     * @throws SQLException si ocurre un error en la base de datos
+     */
+    List<Asistencia> listarPorSeccionYMes(int idSeccion, int anio, int mes) throws SQLException;
 }

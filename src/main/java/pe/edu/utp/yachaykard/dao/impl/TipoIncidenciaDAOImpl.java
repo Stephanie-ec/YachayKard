@@ -17,6 +17,13 @@ import java.util.List;
  */
 public class TipoIncidenciaDAOImpl implements TipoIncidenciaDAO {
 
+    /** Columnas que se leen de la tabla tipo_incidencia. */
+    private static final String COLUMNAS =
+            "id_tipo_incidencia, nombre, gravedad_sugerida, activo";
+
+    /** Inicio común de las consultas de esta tabla. */
+    private static final String CONSULTA_BASE = "SELECT " + COLUMNAS + " FROM tipo_incidencia";
+
     @Override
     public void insertar(TipoIncidencia tipoIncidencia) throws SQLException {
         String sql = "INSERT INTO tipo_incidencia (nombre, gravedad_sugerida, activo) VALUES (?, ?, ?)";
@@ -57,18 +64,18 @@ public class TipoIncidenciaDAOImpl implements TipoIncidenciaDAO {
 
     @Override
     public TipoIncidencia buscarPorId(int idTipoIncidencia) throws SQLException {
-        List<TipoIncidencia> lista = consultar("SELECT * FROM tipo_incidencia WHERE id_tipo_incidencia = ?", idTipoIncidencia);
+        List<TipoIncidencia> lista = consultar(CONSULTA_BASE + " WHERE id_tipo_incidencia = ?", idTipoIncidencia);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<TipoIncidencia> listarTodos() throws SQLException {
-        return listar("SELECT * FROM tipo_incidencia ORDER BY id_tipo_incidencia");
+        return listar(CONSULTA_BASE + " ORDER BY id_tipo_incidencia");
     }
 
     @Override
     public List<TipoIncidencia> listarActivos() throws SQLException {
-        return listar("SELECT * FROM tipo_incidencia WHERE activo = 1 ORDER BY id_tipo_incidencia");
+        return listar(CONSULTA_BASE + " WHERE activo = 1 ORDER BY id_tipo_incidencia");
     }
 
     @Override

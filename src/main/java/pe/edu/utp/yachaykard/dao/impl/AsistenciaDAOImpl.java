@@ -5,10 +5,10 @@ import pe.edu.utp.yachaykard.modelo.Asistencia;
 import pe.edu.utp.yachaykard.util.ConexionBD;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +18,13 @@ import java.util.List;
  * Cada método abre su conexión con try-with-resources, que la cierra automáticamente.
  */
 public class AsistenciaDAOImpl implements AsistenciaDAO {
+
+    /** Columnas que se leen de la tabla asistencia. */
+    private static final String COLUMNAS =
+            "id_asistencia, fecha, estado, id_estudiante, id_auxiliar, id_justificacion";
+
+    /** Inicio común de las consultas de esta tabla. */
+    private static final String CONSULTA_BASE = "SELECT " + COLUMNAS + " FROM asistencia";
 
     @Override
     public void insertar(Asistencia asistencia) throws SQLException {
@@ -58,13 +65,13 @@ public class AsistenciaDAOImpl implements AsistenciaDAO {
 
     @Override
     public Asistencia buscarPorId(int idAsistencia) throws SQLException {
-        List<Asistencia> lista = consultar("SELECT * FROM asistencia WHERE id_asistencia = ?", idAsistencia);
+        List<Asistencia> lista = consultar(CONSULTA_BASE + " WHERE id_asistencia = ?", idAsistencia);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<Asistencia> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM asistencia";
+        String sql = CONSULTA_BASE;
         List<Asistencia> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -80,7 +87,35 @@ public class AsistenciaDAOImpl implements AsistenciaDAO {
 
     @Override
     public List<Asistencia> listarPorEstudiante(int idEstudiante) throws SQLException {
-        return consultar("SELECT * FROM asistencia WHERE id_estudiante = ? ORDER BY fecha DESC", idEstudiante);
+        return consultar(CONSULTA_BASE + " WHERE id_estudiante = ? ORDER BY fecha DESC", idEstudiante);
+    }
+
+    @Override
+    public List<Asistencia> listarPorSeccionYMes(int idSeccion, int anio, int mes) throws SQLException {
+        String sql = "SELECT a.id_asistencia, a.fecha, a.estado, a.id_estudiante, a.id_auxiliar, a.id_justificacion "
+                + "FROM asistencia a "
+                + "JOIN matricula m ON m.id_estudiante = a.id_estudiante "
+                + "WHERE m.id_seccion = ? AND m.anio_lectivo = ? AND m.estado = 'Activa' "
+                + "AND a.fecha >= ? AND a.fecha < ? "
+                + "ORDER BY a.id_estudiante, a.fecha";
+        LocalDate primerDia = LocalDate.of(anio, mes, 1);
+        List<Asistencia> lista = new ArrayList<>();
+
+        try (Connection con = ConexionBD.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idSeccion);
+            ps.setString(2, String.valueOf(anio));
+            ps.setObject(3, primerDia);
+            ps.setObject(4, primerDia.plusMonths(1));
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearAsistencia(rs));
+                }
+            }
+        }
+        return lista;
     }
 
     /**
@@ -116,7 +151,7 @@ public class AsistenciaDAOImpl implements AsistenciaDAO {
      * @throws SQLException si falla la asignación de un parámetro
      */
     private void asignarParametros(PreparedStatement ps, Asistencia asistencia) throws SQLException {
-        ps.setDate(1, asistencia.getFecha() != null ? Date.valueOf(asistencia.getFecha()) : null);
+        ps.setObject(1, asistencia.getFecha());
         ps.setString(2, asistencia.getEstado());
         ps.setInt(3, asistencia.getIdEstudiante());
         ps.setInt(4, asistencia.getIdAuxiliar());
@@ -149,7 +184,7 @@ public class AsistenciaDAOImpl implements AsistenciaDAO {
     private Asistencia mapearAsistencia(ResultSet rs) throws SQLException {
         Asistencia asistencia = new Asistencia();
         asistencia.setIdAsistencia(rs.getInt("id_asistencia"));
-        asistencia.setFecha(rs.getDate("fecha") != null ? rs.getDate("fecha").toLocalDate() : null);
+        asistencia.setFecha(rs.getObject("fecha", LocalDate.class));
         asistencia.setEstado(rs.getString("estado"));
         asistencia.setIdEstudiante(rs.getInt("id_estudiante"));
         asistencia.setIdAuxiliar(rs.getInt("id_auxiliar"));
