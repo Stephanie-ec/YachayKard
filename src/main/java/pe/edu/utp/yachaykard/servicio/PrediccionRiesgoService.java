@@ -24,17 +24,18 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * Cálculo del riesgo de deserción con reglas. Revisa tres señales de alerta:
+ * Cálculo del riesgo de deserción (RF-26). Revisa tres señales de alerta:
  * <ol>
  *     <li>Asistencia: 3 o más faltas sin justificar en los últimos 30 días.</li>
  *     <li>Rendimiento: al menos una competencia cuya calificación más reciente es C.</li>
  *     <li>Conducta: al menos una incidencia grave en los últimos 60 días.</li>
  * </ol>
- * Sin señales el riesgo es Bajo; con una, Medio; con dos o tres, Alto.
- * En la semana 4 se agrega el modelo de Weka (RF-26); estas reglas quedan como respaldo.
- * Los DAO se reciben en el constructor para poder simularlos con Mockito en las pruebas.
+ * El nivel lo decide el modelo de Weka ({@link ModeloRiesgoWeka}, árbol J48). Si el modelo no está
+ * disponible, se usan las reglas: sin señales el riesgo es Bajo; con una, Medio; con dos o tres, Alto.
+ * Los DAO y el clasificador se reciben en el constructor para poder simularlos en las pruebas.
  */
 public class PrediccionRiesgoService {
 
@@ -45,21 +46,27 @@ public class PrediccionRiesgoService {
     static final int FALTAS_PARA_ALERTA = 3;
     static final int DIAS_ASISTENCIA = 30;
     static final int DIAS_INCIDENCIAS = 60;
+    static final Set<String> NIVELES = Set.of(ALTO, MEDIO, BAJO);
+    static final String POR_MODELO = "Modelo J48: ";
+    static final String POR_REGLAS = "Reglas: ";
 
     private final EstudianteDAO estudianteDAO;
     private final AsistenciaDAO asistenciaDAO;
     private final CalificacionDAO calificacionDAO;
     private final IncidenciaDAO incidenciaDAO;
     private final PrediccionRiesgoDAO prediccionDAO;
+    /** Modelo que decide el nivel; null para usar solo las reglas. */
+    private final ClasificadorRiesgo clasificador;
 
-    /** Constructor que usa la aplicación: trabaja con la base de datos. */
+    /** Constructor que usa la aplicación: base de datos y modelo de Weka. */
     public PrediccionRiesgoService() {
         this(new EstudianteDAOImpl(), new AsistenciaDAOImpl(), new CalificacionDAOImpl(),
-                new IncidenciaDAOImpl(), new PrediccionRiesgoDAOImpl());
+                new IncidenciaDAOImpl(), new PrediccionRiesgoDAOImpl(),
+                (faltas, enC, graves) -> ModeloRiesgoWeka.obtener().clasificar(faltas, enC, graves));
     }
 
     /**
-     * Constructor para pruebas.
+     * Constructor para pruebas, solo con reglas.
      *
      * @param estudianteDAO   acceso a estudiantes
      * @param asistenciaDAO   acceso a asistencia
@@ -70,11 +77,28 @@ public class PrediccionRiesgoService {
     public PrediccionRiesgoService(EstudianteDAO estudianteDAO, AsistenciaDAO asistenciaDAO,
                                    CalificacionDAO calificacionDAO, IncidenciaDAO incidenciaDAO,
                                    PrediccionRiesgoDAO prediccionDAO) {
+        this(estudianteDAO, asistenciaDAO, calificacionDAO, incidenciaDAO, prediccionDAO, null);
+    }
+
+    /**
+     * Constructor para pruebas, con un clasificador (modelo real o simulado).
+     *
+     * @param estudianteDAO   acceso a estudiantes
+     * @param asistenciaDAO   acceso a asistencia
+     * @param calificacionDAO acceso a calificaciones
+     * @param incidenciaDAO   acceso a incidencias
+     * @param prediccionDAO   acceso a predicciones
+     * @param clasificador    modelo que decide el nivel; null para usar solo las reglas
+     */
+    public PrediccionRiesgoService(EstudianteDAO estudianteDAO, AsistenciaDAO asistenciaDAO,
+                                   CalificacionDAO calificacionDAO, IncidenciaDAO incidenciaDAO,
+                                   PrediccionRiesgoDAO prediccionDAO, ClasificadorRiesgo clasificador) {
         this.estudianteDAO = estudianteDAO;
         this.asistenciaDAO = asistenciaDAO;
         this.calificacionDAO = calificacionDAO;
         this.incidenciaDAO = incidenciaDAO;
         this.prediccionDAO = prediccionDAO;
+        this.clasificador = clasificador;
     }
 
     /**
@@ -92,8 +116,14 @@ public class PrediccionRiesgoService {
 
         PrediccionRiesgo prediccion = new PrediccionRiesgo();
         prediccion.setIdEstudiante(idEstudiante);
-        prediccion.setNivelRiesgo(nivel(faltas, competenciasEnC, graves));
-        prediccion.setMotivo(motivo(faltas, competenciasEnC, graves));
+        String nivelModelo = nivelDelModelo(faltas, competenciasEnC, graves);
+        if (nivelModelo != null) {
+            prediccion.setNivelRiesgo(nivelModelo);
+            prediccion.setMotivo(POR_MODELO + motivo(faltas, competenciasEnC, graves));
+        } else {
+            prediccion.setNivelRiesgo(nivel(faltas, competenciasEnC, graves));
+            prediccion.setMotivo(POR_REGLAS + motivo(faltas, competenciasEnC, graves));
+        }
         prediccion.setFechaCalculo(hoy);
         prediccionDAO.insertar(prediccion);
         return prediccion;
@@ -119,7 +149,28 @@ public class PrediccionRiesgoService {
     }
 
     /**
-     * Nivel de riesgo según la cantidad de señales de alerta.
+     * Pide el nivel al modelo. Si no hay modelo, falla o devuelve un valor fuera de la lista,
+     * devuelve null para que se usen las reglas.
+     *
+     * @param faltas          faltas sin justificar en los últimos 30 días
+     * @param competenciasEnC competencias en C
+     * @param graves          incidencias graves en los últimos 60 días
+     * @return Alto, Medio, Bajo o null
+     */
+    String nivelDelModelo(int faltas, int competenciasEnC, int graves) {
+        if (clasificador == null) {
+            return null;
+        }
+        try {
+            String nivel = clasificador.clasificar(faltas, competenciasEnC, graves);
+            return nivel != null && NIVELES.contains(nivel) ? nivel : null;
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Nivel de riesgo según la cantidad de señales de alerta (respaldo del modelo).
      *
      * @param faltas          faltas sin justificar en los últimos 30 días
      * @param competenciasEnC competencias cuya calificación más reciente es C

@@ -1,0 +1,123 @@
+% YachayKard - Datos de entrenamiento del modelo de riesgo de deserción (RF-26)
+% Datos FICTICIOS: una fila por combinación de señales, etiquetada por el equipo
+% con el criterio de tutoría: 2 o más señales = Alto; 1 señal = Medio; ninguna = Bajo;
+% y 6 o más faltas sin justificar en 30 días ya es Alto aunque sea la única señal.
+% faltas: faltas sin justificar en los últimos 30 días
+% competencias_c: competencias cuya calificación más reciente es C
+% incidencias_graves: incidencias graves en los últimos 60 días
+@relation riesgo_desercion
+
+@attribute faltas numeric
+@attribute competencias_c numeric
+@attribute incidencias_graves numeric
+@attribute riesgo {Bajo,Medio,Alto}
+
+@data
+0,0,0,Bajo
+0,0,1,Medio
+0,0,2,Medio
+0,1,0,Medio
+0,1,1,Alto
+0,1,2,Alto
+0,2,0,Medio
+0,2,1,Alto
+0,2,2,Alto
+0,3,0,Medio
+0,3,1,Alto
+0,3,2,Alto
+1,0,0,Bajo
+1,0,1,Medio
+1,0,2,Medio
+1,1,0,Medio
+1,1,1,Alto
+1,1,2,Alto
+1,2,0,Medio
+1,2,1,Alto
+1,2,2,Alto
+1,3,0,Medio
+1,3,1,Alto
+1,3,2,Alto
+2,0,0,Bajo
+2,0,1,Medio
+2,0,2,Medio
+2,1,0,Medio
+2,1,1,Alto
+2,1,2,Alto
+2,2,0,Medio
+2,2,1,Alto
+2,2,2,Alto
+2,3,0,Medio
+2,3,1,Alto
+2,3,2,Alto
+3,0,0,Medio
+3,0,1,Alto
+3,0,2,Alto
+3,1,0,Alto
+3,1,1,Alto
+3,1,2,Alto
+3,2,0,Alto
+3,2,1,Alto
+3,2,2,Alto
+3,3,0,Alto
+3,3,1,Alto
+3,3,2,Alto
+4,0,0,Medio
+4,0,1,Alto
+4,0,2,Alto
+4,1,0,Alto
+4,1,1,Alto
+4,1,2,Alto
+4,2,0,Alto
+4,2,1,Alto
+4,2,2,Alto
+4,3,0,Alto
+4,3,1,Alto
+4,3,2,Alto
+5,0,0,Medio
+5,0,1,Alto
+5,0,2,Alto
+5,1,0,Alto
+5,1,1,Alto
+5,1,2,Alto
+5,2,0,Alto
+5,2,1,Alto
+5,2,2,Alto
+5,3,0,Alto
+5,3,1,Alto
+5,3,2,Alto
+6,0,0,Alto
+6,0,1,Alto
+6,0,2,Alto
+6,1,0,Alto
+6,1,1,Alto
+6,1,2,Alto
+6,2,0,Alto
+6,2,1,Alto
+6,2,2,Alto
+6,3,0,Alto
+6,3,1,Alto
+6,3,2,Alto
+7,0,0,Alto
+7,0,1,Alto
+7,0,2,Alto
+7,1,0,Alto
+7,1,1,Alto
+7,1,2,Alto
+7,2,0,Alto
+7,2,1,Alto
+7,2,2,Alto
+7,3,0,Alto
+7,3,1,Alto
+7,3,2,Alto
+8,0,0,Alto
+8,0,1,Alto
+8,0,2,Alto
+8,1,0,Alto
+8,1,1,Alto
+8,1,2,Alto
+8,2,0,Alto
+8,2,1,Alto
+8,2,2,Alto
+8,3,0,Alto
+8,3,1,Alto
+8,3,2,Alto
