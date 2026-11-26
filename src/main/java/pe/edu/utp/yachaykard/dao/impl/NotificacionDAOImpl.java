@@ -19,6 +19,13 @@ import java.util.List;
  */
 public class NotificacionDAOImpl implements NotificacionDAO {
 
+    /** Columnas que se leen de la tabla notificacion. */
+    private static final String COLUMNAS =
+            "id_notificacion, fecha_envio, mensaje, id_apoderado, id_usuario, id_estudiante, canal, tipo, estado";
+
+    /** Inicio común de las consultas de esta tabla. */
+    private static final String CONSULTA_BASE = "SELECT " + COLUMNAS + " FROM notificacion";
+
     @Override
     public void insertar(Notificacion notificacion) throws SQLException {
         String sql = "INSERT INTO notificacion (fecha_envio, mensaje, id_apoderado, id_usuario, id_estudiante, canal, tipo, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -58,13 +65,13 @@ public class NotificacionDAOImpl implements NotificacionDAO {
 
     @Override
     public Notificacion buscarPorId(int idNotificacion) throws SQLException {
-        List<Notificacion> lista = consultar("SELECT * FROM notificacion WHERE id_notificacion = ?", idNotificacion);
+        List<Notificacion> lista = consultar(CONSULTA_BASE + " WHERE id_notificacion = ?", idNotificacion);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<Notificacion> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM notificacion";
+        String sql = CONSULTA_BASE;
         List<Notificacion> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -80,7 +87,7 @@ public class NotificacionDAOImpl implements NotificacionDAO {
 
     @Override
     public List<Notificacion> listarPorUsuario(int idUsuario) throws SQLException {
-        return consultar("SELECT * FROM notificacion WHERE id_usuario = ? ORDER BY fecha_envio DESC", idUsuario);
+        return consultar(CONSULTA_BASE + " WHERE id_usuario = ? ORDER BY fecha_envio DESC", idUsuario);
     }
 
     /**

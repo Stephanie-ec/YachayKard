@@ -8,6 +8,7 @@ import jakarta.inject.Named;
 import pe.edu.utp.yachaykard.dao.TipoIncidenciaDAO;
 import pe.edu.utp.yachaykard.dao.impl.TipoIncidenciaDAOImpl;
 import pe.edu.utp.yachaykard.modelo.TipoIncidencia;
+import pe.edu.utp.yachaykard.servicio.CatalogoIncidencias;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -24,8 +25,7 @@ import java.util.List;
 @ViewScoped
 public class CatalogoIncidenciasBean implements Serializable {
 
-    /** Tipo que no se puede editar ni desactivar. */
-    private static final String TIPO_OTRA = "Otra";
+    private static final long serialVersionUID = 1L;
 
     private List<TipoIncidencia> tipos = new ArrayList<>();
     private TipoIncidencia tipo = new TipoIncidencia();
@@ -47,21 +47,15 @@ public class CatalogoIncidenciasBean implements Serializable {
 
     /** Registra un tipo nuevo o actualiza el que se está editando. */
     public void guardar() {
-        tipo.setNombre(tipo.getNombre().trim());
         try {
-            if (tipoIncidenciaDAO().existeNombre(tipo.getNombre(), tipo.getIdTipoIncidencia())) {
-                mensaje(FacesMessage.SEVERITY_ERROR, "Ya existe un tipo con este nombre.");
-                return;
-            }
-            if (tipo.getIdTipoIncidencia() == 0) {
-                tipoIncidenciaDAO().registrarTipo(tipo);
-                mensaje(FacesMessage.SEVERITY_INFO, "Tipo de incidencia registrado correctamente.");
-            } else {
-                tipoIncidenciaDAO().actualizar(tipo);
-                mensaje(FacesMessage.SEVERITY_INFO, "Tipo de incidencia actualizado correctamente.");
-            }
+            boolean nuevo = catalogo().guardar(tipo);
+            mensaje(FacesMessage.SEVERITY_INFO, nuevo
+                    ? "Tipo de incidencia registrado correctamente."
+                    : "Tipo de incidencia actualizado correctamente.");
             tipo = new TipoIncidencia();
             cargar();
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            mensaje(FacesMessage.SEVERITY_ERROR, e.getMessage());
         } catch (SQLException e) {
             mensaje(FacesMessage.SEVERITY_ERROR, "No se pudo guardar: " + e.getMessage());
         }
@@ -87,19 +81,16 @@ public class CatalogoIncidenciasBean implements Serializable {
      * @param seleccionado tipo elegido en la tabla
      */
     public void cambiarEstado(TipoIncidencia seleccionado) {
-        if (esBloqueado(seleccionado)) {
-            mensaje(FacesMessage.SEVERITY_WARN, "El tipo \"Otra\" siempre debe estar disponible.");
-            return;
-        }
-        boolean activar = !seleccionado.isActivo();
         try {
-            tipoIncidenciaDAO().cambiarEstado(seleccionado.getIdTipoIncidencia(), activar);
+            boolean activar = catalogo().cambiarEstado(seleccionado);
             if (tipo.getIdTipoIncidencia() == seleccionado.getIdTipoIncidencia()) {
                 tipo = new TipoIncidencia();
             }
             mensaje(FacesMessage.SEVERITY_INFO,
                     "Tipo de incidencia " + (activar ? "activado" : "desactivado") + " correctamente.");
             cargar();
+        } catch (IllegalStateException e) {
+            mensaje(FacesMessage.SEVERITY_WARN, e.getMessage());
         } catch (SQLException e) {
             mensaje(FacesMessage.SEVERITY_ERROR, "No se pudo cambiar el estado: " + e.getMessage());
         }
@@ -110,7 +101,23 @@ public class CatalogoIncidenciasBean implements Serializable {
      * @return true si es el tipo "Otra", que no se edita ni se desactiva
      */
     public boolean esBloqueado(TipoIncidencia t) {
-        return TIPO_OTRA.equalsIgnoreCase(t.getNombre());
+        return catalogo().esBloqueado(t);
+    }
+
+    /**
+     * Clase de Bootstrap del distintivo de gravedad.
+     *
+     * @param gravedad Grave, Moderada o Leve
+     * @return clase CSS del distintivo
+     */
+    public String claseGravedad(String gravedad) {
+        if ("Grave".equals(gravedad)) {
+            return "bg-danger";
+        }
+        if ("Moderada".equals(gravedad)) {
+            return "bg-warning text-dark";
+        }
+        return "bg-success";
     }
 
     /** Limpia el formulario. */
@@ -121,6 +128,11 @@ public class CatalogoIncidenciasBean implements Serializable {
     /** @return DAO del catálogo (se crea en cada uso porque no guarda estado) */
     private TipoIncidenciaDAO tipoIncidenciaDAO() {
         return new TipoIncidenciaDAOImpl();
+    }
+
+    /** @return reglas del catálogo (se crean en cada uso porque no guardan estado) */
+    private CatalogoIncidencias catalogo() {
+        return new CatalogoIncidencias();
     }
 
     /**

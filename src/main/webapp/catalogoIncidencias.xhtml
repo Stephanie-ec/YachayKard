@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:f="jakarta.faces.core"
       xmlns:ui="jakarta.faces.facelets">
@@ -23,13 +23,13 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Nombre del tipo *</label>
-                            <h:inputText value="#{catalogoIncidenciasBean.tipo.nombre}" styleClass="form-control"
+                            <h:outputLabel for="nombre" value="Nombre del tipo *" styleClass="form-label"/>
+                            <h:inputText id="nombre" value="#{catalogoIncidenciasBean.tipo.nombre}" styleClass="form-control"
                                          required="true" requiredMessage="El nombre es requerido."/>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Gravedad predeterminada *</label>
-                            <h:selectOneMenu value="#{catalogoIncidenciasBean.tipo.gravedadSugerida}" styleClass="form-select"
+                            <h:outputLabel for="gravedadPredeterminada" value="Gravedad predeterminada *" styleClass="form-label"/>
+                            <h:selectOneMenu id="gravedadPredeterminada" value="#{catalogoIncidenciasBean.tipo.gravedadSugerida}" styleClass="form-select"
                                              required="true" requiredMessage="Seleccione una gravedad.">
                                 <f:selectItem itemLabel="— Seleccione —" noSelectionOption="true"/>
                                 <f:selectItem itemValue="Leve" itemLabel="Leve"/>
@@ -60,7 +60,7 @@
                 </h:column>
                 <h:column>
                     <f:facet name="header">Gravedad predeterminada</f:facet>
-                    <span class="badge #{t.gravedadSugerida == 'Grave' ? 'bg-danger' : (t.gravedadSugerida == 'Moderada' ? 'bg-warning text-dark' : 'bg-success')}">#{t.gravedadSugerida}</span>
+                    <span class="badge #{catalogoIncidenciasBean.claseGravedad(t.gravedadSugerida)}">#{t.gravedadSugerida}</span>
                 </h:column>
                 <h:column>
                     <f:facet name="header">Estado</f:facet>

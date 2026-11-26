@@ -19,6 +19,13 @@ import java.util.List;
  */
 public class IncidenciaDAOImpl implements IncidenciaDAO {
 
+    /** Columnas que se leen de la tabla incidencia. */
+    private static final String COLUMNAS =
+            "id_incidencia, fecha_hora, descripcion, id_estudiante, id_tipo_incidencia, gravedad, accion_tomada, id_usuario, id_curso, requiere_siseve";
+
+    /** Inicio común de las consultas de esta tabla. */
+    private static final String CONSULTA_BASE = "SELECT " + COLUMNAS + " FROM incidencia";
+
     @Override
     public void insertar(Incidencia incidencia) throws SQLException {
         String sql = "INSERT INTO incidencia (fecha_hora, descripcion, id_estudiante, id_tipo_incidencia, gravedad, accion_tomada, id_usuario, id_curso, requiere_siseve) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -58,13 +65,13 @@ public class IncidenciaDAOImpl implements IncidenciaDAO {
 
     @Override
     public Incidencia buscarPorId(int idIncidencia) throws SQLException {
-        List<Incidencia> lista = consultar("SELECT * FROM incidencia WHERE id_incidencia = ?", idIncidencia);
+        List<Incidencia> lista = consultar(CONSULTA_BASE + " WHERE id_incidencia = ?", idIncidencia);
         return lista.isEmpty() ? null : lista.get(0);
     }
 
     @Override
     public List<Incidencia> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM incidencia";
+        String sql = CONSULTA_BASE;
         List<Incidencia> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -80,7 +87,7 @@ public class IncidenciaDAOImpl implements IncidenciaDAO {
 
     @Override
     public List<Incidencia> listarPorEstudiante(int idEstudiante) throws SQLException {
-        return consultar("SELECT * FROM incidencia WHERE id_estudiante = ? ORDER BY fecha_hora DESC", idEstudiante);
+        return consultar(CONSULTA_BASE + " WHERE id_estudiante = ? ORDER BY fecha_hora DESC", idEstudiante);
     }
 
     /**
