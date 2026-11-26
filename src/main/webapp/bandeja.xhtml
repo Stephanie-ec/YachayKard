@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="titulo">Bandeja del tutor - YachayKard</ui:define>
+
+    <ui:define name="contenido">
+        <h:form id="formBandeja">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h2 class="mb-1">Bandeja del tutor</h2>
+                    <p class="text-muted mb-0">
+                        #{bandejaBean.administrador ? 'Alertas internas e incidencias de todas las secciones.' : 'Alertas internas e incidencias de los estudiantes de su tutoría.'}
+                        "Avisar por WhatsApp" abre el mensaje ya redactado para el apoderado en otra pestaña.
+                    </p>
+                </div>
+                <h:commandButton value="Actualizar" action="#{bandejaBean.actualizar}"
+                                 styleClass="btn btn-outline-secondary btn-sm"/>
+            </div>
+
+            <h:messages styleClass="list-unstyled" infoClass="alert alert-success" errorClass="alert alert-danger"/>
+
+            <!-- ALERTAS INTERNAS (RF-27) -->
+            <div class="card mb-4">
+                <div class="card-header fw-bold">Alertas internas
+                    <h:outputText value="#{bandejaBean.alertasSinLeer} sin leer"
+                                  styleClass="badge bg-warning text-dark ms-2"
+                                  rendered="#{bandejaBean.alertasSinLeer gt 0}"/>
+                </div>
+                <div class="card-body p-0">
+                    <h:dataTable value="#{bandejaBean.alertas}" var="a"
+                                 styleClass="table table-hover align-middle mb-0"
+                                 rendered="#{not empty bandejaBean.alertas}">
+                        <h:column>
+                            <f:facet name="header">Fecha</f:facet>
+                            #{bandejaBean.fechaHora(a.alerta.fechaEnvio)}
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Estudiante</f:facet>
+                            #{a.estudiante}
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Alerta</f:facet>
+                            <strong>#{a.alerta.tipo}</strong><br/>
+                            <span class="small text-muted">#{a.alerta.mensaje}</span>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Estado</f:facet>
+                            <span class="badge #{bandejaBean.claseEstado(a.alerta.estado)}">#{a.alerta.estado}</span>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Acciones</f:facet>
+                            <h:commandButton value="Marcar como leída" action="#{bandejaBean.marcarLeida(a)}"
+                                             rendered="#{a.alerta.estado eq 'No leída'}"
+                                             styleClass="btn btn-sm btn-outline-primary me-1"/>
+                            <h:commandLink value="Avisar por WhatsApp" action="#{bandejaBean.avisarAlerta(a)}"
+                                           target="_blank" rendered="#{a.avisable}"
+                                           styleClass="btn btn-sm btn-success"/>
+                            <h:outputText value="Apoderado sin celular" styleClass="small text-muted"
+                                          rendered="#{a.sinCelular}"/>
+                        </h:column>
+                    </h:dataTable>
+                    <h:outputText value="No tiene alertas." styleClass="d-block p-3 text-muted"
+                                  rendered="#{empty bandejaBean.alertas}"/>
+                </div>
+            </div>
+
+            <!-- INCIDENCIAS DE MI TUTORÍA (RF-24) -->
+            <div class="card">
+                <div class="card-header fw-bold">Incidencias de mi tutoría</div>
+                <div class="card-body p-0">
+                    <h:dataTable value="#{bandejaBean.incidencias}" var="i"
+                                 styleClass="table table-hover align-middle mb-0"
+                                 rendered="#{not empty bandejaBean.incidencias}">
+                        <h:column>
+                            <f:facet name="header">Fecha</f:facet>
+                            #{bandejaBean.fechaHora(i.incidencia.fechaHora)}
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Estudiante</f:facet>
+                            #{i.estudiante}<br/>
+                            <span class="small text-muted">#{i.seccion}</span>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Tipo</f:facet>
+                            #{i.tipo}
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Gravedad</f:facet>
+                            <span class="badge #{bandejaBean.claseGravedad(i.incidencia.gravedad)}">#{i.incidencia.gravedad}</span>
+                            <h:outputText value="SíseVe" styleClass="badge bg-dark ms-1"
+                                          rendered="#{i.incidencia.requiereSiseve}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Registró</f:facet>
+                            #{i.registradoPor}
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Acción tomada</f:facet>
+                            #{i.incidencia.accionTomada}
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Aviso al apoderado</f:facet>
+                            <span class="badge #{bandejaBean.claseEstado(i.estadoAviso)}">#{i.estadoAviso}</span>
+                            <h:commandLink value="Avisar por WhatsApp" action="#{bandejaBean.avisarIncidencia(i)}"
+                                           target="_blank" rendered="#{i.avisable}"
+                                           styleClass="btn btn-sm btn-success ms-1"/>
+                            <h:outputText value="Sin celular" styleClass="small text-muted ms-1"
+                                          rendered="#{i.sinCelular}"/>
+                        </h:column>
+                    </h:dataTable>
+                    <h:outputText value="No hay incidencias registradas en su tutoría."
+                                  styleClass="d-block p-3 text-muted"
+                                  rendered="#{empty bandejaBean.incidencias}"/>
+                </div>
+            </div>
+        </h:form>
+    </ui:define>
+
+</ui:composition>
+</html>
