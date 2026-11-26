@@ -65,7 +65,7 @@ public class RegistroAsistencia {
         if (fecha.isAfter(hoy)) {
             throw new IllegalArgumentException("No se puede registrar asistencia de una fecha futura.");
         }
-        if (fecha.getDayOfWeek() == DayOfWeek.SATURDAY || fecha.getDayOfWeek() == DayOfWeek.SUNDAY) {
+        if (DayOfWeek.SATURDAY.equals(fecha.getDayOfWeek()) || DayOfWeek.SUNDAY.equals(fecha.getDayOfWeek())) {
             throw new IllegalArgumentException("No hay clases los sábados ni domingos.");
         }
     }

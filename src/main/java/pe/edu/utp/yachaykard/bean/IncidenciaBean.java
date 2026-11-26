@@ -34,7 +34,7 @@ import java.util.Map;
 public class IncidenciaBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final int RECIENTES = 20;
+    private static final int LIMITE_RECIENTES = 20;
     private static final DateTimeFormatter FECHA_HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private List<Estudiante> estudiantes = new ArrayList<>();
@@ -64,7 +64,7 @@ public class IncidenciaBean implements Serializable {
 
     private void cargarRecientes() {
         try {
-            recientes = new IncidenciaDAOImpl().listarRecientes(RECIENTES);
+            recientes = new IncidenciaDAOImpl().listarRecientes(LIMITE_RECIENTES);
         } catch (SQLException e) {
             mensaje(FacesMessage.SEVERITY_ERROR, "No se pudieron cargar las incidencias: " + e.getMessage());
         }
