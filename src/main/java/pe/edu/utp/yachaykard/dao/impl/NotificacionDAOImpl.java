@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +29,8 @@ public class NotificacionDAOImpl implements NotificacionDAO {
 
     @Override
     public void insertar(Notificacion notificacion) throws SQLException {
-        String sql = "INSERT INTO notificacion (fecha_envio, mensaje, id_apoderado, id_usuario, id_estudiante, canal, tipo, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO notificacion (fecha_envio, mensaje, id_apoderado, id_usuario, id_estudiante, canal, tipo, estado) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -40,7 +42,8 @@ public class NotificacionDAOImpl implements NotificacionDAO {
 
     @Override
     public void actualizar(Notificacion notificacion) throws SQLException {
-        String sql = "UPDATE notificacion SET fecha_envio = ?, mensaje = ?, id_apoderado = ?, id_usuario = ?, id_estudiante = ?, canal = ?, tipo = ?, estado = ? WHERE id_notificacion = ?";
+        String sql = "UPDATE notificacion SET fecha_envio = ?, mensaje = ?, id_apoderado = ?, id_usuario = ?, "
+                + "id_estudiante = ?, canal = ?, tipo = ?, estado = ? WHERE id_notificacion = ?";
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -71,7 +74,7 @@ public class NotificacionDAOImpl implements NotificacionDAO {
 
     @Override
     public List<Notificacion> listarTodos() throws SQLException {
-        String sql = CONSULTA_BASE;
+        String sql = CONSULTA_BASE + " ORDER BY fecha_envio DESC";
         List<Notificacion> lista = new ArrayList<>();
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -88,6 +91,25 @@ public class NotificacionDAOImpl implements NotificacionDAO {
     @Override
     public List<Notificacion> listarPorUsuario(int idUsuario) throws SQLException {
         return consultar(CONSULTA_BASE + " WHERE id_usuario = ? ORDER BY fecha_envio DESC", idUsuario);
+    }
+
+    @Override
+    public boolean existeAlerta(int idEstudiante, int idUsuario, String tipo, LocalDateTime desde) throws SQLException {
+        String sql = "SELECT 1 FROM notificacion WHERE id_estudiante = ? AND id_usuario = ? AND tipo = ? "
+                + "AND fecha_envio >= ? LIMIT 1";
+
+        try (Connection con = ConexionBD.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idEstudiante);
+            ps.setInt(2, idUsuario);
+            ps.setString(3, tipo);
+            ps.setTimestamp(4, Timestamp.valueOf(desde));
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
     }
 
     /**
@@ -118,7 +140,7 @@ public class NotificacionDAOImpl implements NotificacionDAO {
     /**
      * Asigna los campos comunes de INSERT y UPDATE, en el orden de las columnas.
      *
-     * @param ps sentencia preparada
+     * @param ps           sentencia preparada
      * @param notificacion datos de origen
      * @throws SQLException si falla la asignación de un parámetro
      */
@@ -159,7 +181,8 @@ public class NotificacionDAOImpl implements NotificacionDAO {
     private Notificacion mapearNotificacion(ResultSet rs) throws SQLException {
         Notificacion notificacion = new Notificacion();
         notificacion.setIdNotificacion(rs.getInt("id_notificacion"));
-        notificacion.setFechaEnvio(rs.getTimestamp("fecha_envio") != null ? rs.getTimestamp("fecha_envio").toLocalDateTime() : null);
+        Timestamp fecha = rs.getTimestamp("fecha_envio");
+        notificacion.setFechaEnvio(fecha != null ? fecha.toLocalDateTime() : null);
         notificacion.setMensaje(rs.getString("mensaje"));
         notificacion.setIdApoderado((Integer) rs.getObject("id_apoderado"));
         notificacion.setIdUsuario((Integer) rs.getObject("id_usuario"));

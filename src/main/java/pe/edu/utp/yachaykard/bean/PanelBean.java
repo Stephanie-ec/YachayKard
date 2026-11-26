@@ -12,6 +12,8 @@ import pe.edu.utp.yachaykard.dao.impl.MatriculaDAOImpl;
 import pe.edu.utp.yachaykard.dao.impl.PeriodoDAOImpl;
 import pe.edu.utp.yachaykard.dao.impl.PrediccionRiesgoDAOImpl;
 import pe.edu.utp.yachaykard.modelo.Periodo;
+import pe.edu.utp.yachaykard.modelo.Usuario;
+import pe.edu.utp.yachaykard.servicio.NotificacionService;
 import pe.edu.utp.yachaykard.servicio.PrediccionRiesgoService;
 import pe.edu.utp.yachaykard.util.DatosSesion;
 import pe.edu.utp.yachaykard.util.Zona;
@@ -22,7 +24,8 @@ import java.util.Map;
 /**
  * Managed Bean del panel principal (index.xhtml).
  * Muestra un resumen general: estudiantes, matrículas activas,
- * periodo abierto e incidencias registradas.
+ * periodo abierto e incidencias registradas. Al administrador y al docente les genera
+ * las alertas internas nuevas (RF-27) y les muestra cuántas tienen sin leer.
  */
 @Named("panelBean")
 @RequestScoped
@@ -35,6 +38,7 @@ public class PanelBean {
     private int riesgoAlto;
     private int riesgoMedio;
     private int riesgoBajo;
+    private int alertasSinLeer;
 
     /**
      * Lee los totales desde la base de datos al abrir el panel.
@@ -53,6 +57,7 @@ public class PanelBean {
                     .orElse("Ninguno");
             totalIncidencias = new IncidenciaDAOImpl().listarTodos().size();
             cargarRiesgo();
+            cargarAlertas();
         } catch (SQLException e) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
                     "No se pudo cargar el resumen: " + e.getMessage(), null));
@@ -66,7 +71,25 @@ public class PanelBean {
         riesgoBajo = dao.listarVigentesPorNivel(PrediccionRiesgoService.BAJO).size();
     }
 
-    /** Recalcula el riesgo de todos los estudiantes con las reglas (solo administrador). */
+    /**
+     * Genera las alertas nuevas y cuenta las que el usuario no ha leído.
+     * Solo para el administrador y el docente.
+     *
+     * @throws SQLException si ocurre un error en la base de datos
+     */
+    private void cargarAlertas() throws SQLException {
+        Map<String, Object> sesion = FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
+        Object rol = sesion.get(DatosSesion.ROL);
+        if (!DatosSesion.ADMINISTRADOR.equals(rol) && !DatosSesion.DOCENTE.equals(rol)) {
+            return;
+        }
+        NotificacionService alertas = new NotificacionService();
+        alertas.generar(Zona.ahora());
+        Usuario usuario = (Usuario) sesion.get(DatosSesion.USUARIO);
+        alertasSinLeer = alertas.pendientes(usuario.getIdUsuario()).size();
+    }
+
+    /** Recalcula el riesgo de todos los estudiantes con el modelo de Weka y genera las alertas (solo administrador). */
     public void calcularRiesgo() {
         FacesContext contexto = FacesContext.getCurrentInstance();
         if (!DatosSesion.ADMINISTRADOR.equals(contexto.getExternalContext().getSessionMap().get(DatosSesion.ROL))) {
@@ -75,6 +98,7 @@ public class PanelBean {
         try {
             Map<String, Integer> conteo = new PrediccionRiesgoService().calcularTodos(Zona.hoy());
             cargarRiesgo();
+            cargarAlertas();
             contexto.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
                     "Riesgo calculado: " + conteo.get(PrediccionRiesgoService.ALTO) + " alto, "
                             + conteo.get(PrediccionRiesgoService.MEDIO) + " medio y "
@@ -111,5 +135,9 @@ public class PanelBean {
 
     public int getRiesgoBajo() {
         return riesgoBajo;
+    }
+
+    public int getAlertasSinLeer() {
+        return alertasSinLeer;
     }
 }

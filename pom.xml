@@ -19,6 +19,10 @@
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <!-- La cobertura se mide en la lógica; DAOImpl, beans, REST y filtros dependen de MySQL o del servidor -->
         <sonar.coverage.exclusions>**/dao/impl/**,**/bean/**,**/rest/**,**/util/ConexionBD.java,**/util/FiltroSesion.java</sonar.coverage.exclusions>
+        <!-- Regla aceptada por el equipo: el <title> de cada página lo pone template.xhtml -->
+        <sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>
+        <sonar.issue.ignore.multicriteria.e1.ruleKey>Web:PageWithoutTitleCheck</sonar.issue.ignore.multicriteria.e1.ruleKey>
+        <sonar.issue.ignore.multicriteria.e1.resourceKey>**/*.xhtml</sonar.issue.ignore.multicriteria.e1.resourceKey>
     </properties>
 
     <dependencies>
@@ -79,6 +83,12 @@
             <version>5.1.2.Final</version>
         </dependency>
 
+        <!-- Weka: modelo de riesgo de deserción con árbol J48 (RF-26) -->
+        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>weka-stable</artifactId>
+            <version>3.8.6</version>
+        </dependency>
         <!-- Pruebas unitarias: JUnit 5 y Mockito (solo para pruebas) -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

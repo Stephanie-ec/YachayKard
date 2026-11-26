@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -28,7 +29,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Pruebas del cálculo de riesgo con reglas, con los DAO simulados en Mockito. Datos ficticios.
+ * Pruebas del cálculo de riesgo (modelo y reglas de respaldo), con los DAO simulados en Mockito. Datos ficticios.
  */
 class PrediccionRiesgoServiceTest {
 
@@ -159,5 +160,39 @@ class PrediccionRiesgoServiceTest {
         assertEquals(1, conteo.get("Medio"));
         assertEquals(1, conteo.get("Bajo"));
         verify(prediccionDAO, times(2)).insertar(any());
+    }
+
+    private PrediccionRiesgoService conModelo(ClasificadorRiesgo modelo) {
+        return new PrediccionRiesgoService(estudianteDAO, asistenciaDAO, calificacionDAO, incidenciaDAO,
+                prediccionDAO, modelo);
+    }
+
+    @Test
+    @DisplayName("Con modelo, el nivel lo decide el modelo y el motivo lo indica")
+    void nivelDelModelo() throws SQLException {
+        PrediccionRiesgo p = conModelo((faltas, enC, graves) -> "Alto").calcular(4, HOY);
+
+        assertEquals("Alto", p.getNivelRiesgo());
+        assertTrue(p.getMotivo().startsWith("Modelo J48: "));
+        verify(prediccionDAO).insertar(p);
+    }
+
+    @Test
+    @DisplayName("Si el modelo falla, se usan las reglas")
+    void modeloFallaUsaReglas() throws SQLException {
+        PrediccionRiesgo p = conModelo((faltas, enC, graves) -> {
+            throw new IllegalStateException("Modelo no disponible");
+        }).calcular(4, HOY);
+
+        assertEquals("Bajo", p.getNivelRiesgo());
+        assertTrue(p.getMotivo().startsWith("Reglas: "));
+    }
+
+    @Test
+    @DisplayName("Si el modelo devuelve un valor fuera de la lista, se usan las reglas")
+    void modeloValorInvalidoUsaReglas() {
+        assertEquals(null, conModelo((faltas, enC, graves) -> "Crítico").nivelDelModelo(1, 0, 0));
+        assertEquals(null, conModelo((faltas, enC, graves) -> null).nivelDelModelo(1, 0, 0));
+        assertEquals("Medio", conModelo((faltas, enC, graves) -> "Medio").nivelDelModelo(1, 0, 0));
     }
 }

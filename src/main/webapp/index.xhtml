@@ -47,6 +47,17 @@
             </div>
         </div>
 
+        <h:panelGroup layout="block" styleClass="alert #{panelBean.alertasSinLeer gt 0 ? 'alert-warning' : 'alert-light border'} d-flex justify-content-between align-items-center mt-4"
+                      rendered="#{sesionBean.administrador or sesionBean.docente}">
+            <span>
+                <strong>Alertas internas:</strong>
+                <h:outputText value="#{panelBean.alertasSinLeer} sin leer (faltas, SíseVe o riesgo alto)."
+                              rendered="#{panelBean.alertasSinLeer gt 0}"/>
+                <h:outputText value="no tiene alertas sin leer." rendered="#{panelBean.alertasSinLeer eq 0}"/>
+            </span>
+            <a class="btn btn-sm btn-outline-dark" href="#{request.contextPath}/bandeja.xhtml">Ir a la bandeja</a>
+        </h:panelGroup>
+
         <h:panelGroup layout="block" styleClass="card mt-4" rendered="#{sesionBean.administrador}">
             <div class="card-header fw-bold">Riesgo de deserción (último cálculo de cada estudiante)</div>
             <div class="card-body">
@@ -64,10 +75,11 @@
                         <div class="fs-3 fw-bold text-success">#{panelBean.riesgoBajo}</div>
                     </div>
                 </div>
-                <p class="text-muted small mb-2">Señales: 3 o más faltas sin justificar en 30 días,
-                    una competencia en nivel C o una incidencia grave en 60 días.</p>
+                <p class="text-muted small mb-2">El nivel lo decide un árbol de decisión J48 (Weka) entrenado con
+                    datos ficticios, con tres señales: faltas sin justificar en 30 días, competencias en nivel C
+                    e incidencias graves en 60 días. Si el modelo no está disponible, se usan las reglas.</p>
                 <h:form id="formRiesgo">
-                    <h:commandButton value="Calcular riesgo de todos los estudiantes" action="#{panelBean.calcularRiesgo}"
+                    <h:commandButton value="Calcular riesgo y generar alertas" action="#{panelBean.calcularRiesgo}"
                                      styleClass="btn btn-outline-primary"/>
                 </h:form>
             </div>

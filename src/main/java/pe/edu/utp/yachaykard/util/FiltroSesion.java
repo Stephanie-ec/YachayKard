@@ -38,6 +38,8 @@ public class FiltroSesion implements Filter {
             Map.entry("/calificaciones.xhtml", ADMIN_Y_DOCENTE),
             Map.entry("/cierre.xhtml", ADMIN_Y_DOCENTE),
             Map.entry("/historial.xhtml", ADMIN_Y_DOCENTE),
+            Map.entry("/bandeja.xhtml", ADMIN_Y_DOCENTE),
+            Map.entry("/exportar.xhtml", ADMIN_Y_DOCENTE),
             Map.entry("/misSecciones.xhtml", Set.of(DatosSesion.DOCENTE)),
             Map.entry("/asistencia.xhtml", Set.of(DatosSesion.ADMINISTRADOR, DatosSesion.AUXILIAR)),
             Map.entry("/incidencias.xhtml",

@@ -3,6 +3,7 @@ package pe.edu.utp.yachaykard.dao;
 import pe.edu.utp.yachaykard.modelo.Notificacion;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -69,4 +70,17 @@ public interface NotificacionDAO {
      * @throws SQLException si ocurre un error en la base de datos
      */
     List<Notificacion> listarPorUsuario(int idUsuario) throws SQLException;
+
+    /**
+     * Indica si ya se envió una alerta del mismo tipo, sobre el mismo estudiante y al mismo usuario
+     * desde una fecha (evita repetir la alerta cada vez que se generan, RF-27).
+     *
+     * @param idEstudiante estudiante de la alerta
+     * @param idUsuario    usuario que la recibe
+     * @param tipo         tipo de alerta
+     * @param desde        fecha y hora desde la que se busca
+     * @return true si ya existe
+     * @throws SQLException si ocurre un error en la base de datos
+     */
+    boolean existeAlerta(int idEstudiante, int idUsuario, String tipo, LocalDateTime desde) throws SQLException;
 }
