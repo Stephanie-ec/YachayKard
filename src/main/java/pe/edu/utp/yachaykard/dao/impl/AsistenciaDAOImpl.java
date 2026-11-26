@@ -118,6 +118,30 @@ public class AsistenciaDAOImpl implements AsistenciaDAO {
         return lista;
     }
 
+    @Override
+    public List<Asistencia> listarPorSeccionYFecha(int idSeccion, LocalDate fecha) throws SQLException {
+        String sql = "SELECT a.id_asistencia, a.fecha, a.estado, a.id_estudiante, a.id_auxiliar, a.id_justificacion "
+                + "FROM asistencia a "
+                + "JOIN matricula m ON m.id_estudiante = a.id_estudiante "
+                + "WHERE m.id_seccion = ? AND m.anio_lectivo = ? AND m.estado = 'Activa' AND a.fecha = ?";
+        List<Asistencia> lista = new ArrayList<>();
+
+        try (Connection con = ConexionBD.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idSeccion);
+            ps.setString(2, String.valueOf(fecha.getYear()));
+            ps.setObject(3, fecha);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearAsistencia(rs));
+                }
+            }
+        }
+        return lista;
+    }
+
     /**
      * Ejecuta una consulta con un único parámetro entero y devuelve las filas mapeadas.
      *

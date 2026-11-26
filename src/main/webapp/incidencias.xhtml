@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="titulo">Registro de incidencias - YachayKard</ui:define>
+
+    <ui:define name="contenido">
+        <h2 class="mb-1">Registro de incidencias</h2>
+        <p class="text-muted mb-3">La acción tomada es obligatoria. Las incidencias graves piden describir lo ocurrido
+            y se marcan para reportar en el SíseVe.</p>
+
+        <h:messages styleClass="list-unstyled" infoClass="alert alert-success" errorClass="alert alert-danger"/>
+
+        <div class="card mb-4">
+            <div class="card-header fw-bold">Nueva incidencia</div>
+            <h:form id="formIncidencia">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <h:outputLabel for="estudiante" value="Estudiante *" styleClass="form-label"/>
+                            <h:selectOneMenu id="estudiante" value="#{incidenciaBean.incidencia.idEstudiante}" styleClass="form-select">
+                                <f:selectItem itemValue="0" itemLabel="— Seleccione —"/>
+                                <f:selectItems value="#{incidenciaBean.estudiantes}" var="e" itemValue="#{e.idEstudiante}"
+                                               itemLabel="#{e.apellidos}, #{e.nombres}"/>
+                            </h:selectOneMenu>
+                        </div>
+                        <div class="col-md-6">
+                            <h:outputLabel for="tipo" value="Tipo de incidencia *" styleClass="form-label"/>
+                            <h:selectOneMenu id="tipo" value="#{incidenciaBean.incidencia.idTipoIncidencia}" styleClass="form-select">
+                                <f:selectItem itemValue="0" itemLabel="— Seleccione —"/>
+                                <f:selectItems value="#{incidenciaBean.tipos}" var="t" itemValue="#{t.idTipoIncidencia}"
+                                               itemLabel="#{t.nombre}"/>
+                                <f:ajax listener="#{incidenciaBean.cambiarTipo}" render="gravedad"/>
+                            </h:selectOneMenu>
+                        </div>
+                        <div class="col-md-4">
+                            <h:outputLabel for="gravedad" value="Gravedad *" styleClass="form-label"/>
+                            <h:selectOneMenu id="gravedad" value="#{incidenciaBean.incidencia.gravedad}" styleClass="form-select">
+                                <f:selectItem itemLabel="— Seleccione —" noSelectionOption="true"/>
+                                <f:selectItem itemValue="Leve" itemLabel="Leve"/>
+                                <f:selectItem itemValue="Moderada" itemLabel="Moderada"/>
+                                <f:selectItem itemValue="Grave" itemLabel="Grave"/>
+                            </h:selectOneMenu>
+                        </div>
+                        <div class="col-md-5">
+                            <h:outputLabel for="accion" value="Acción tomada *" styleClass="form-label"/>
+                            <h:selectOneMenu id="accion" value="#{incidenciaBean.incidencia.accionTomada}" styleClass="form-select">
+                                <f:selectItem itemLabel="— Seleccione —" noSelectionOption="true"/>
+                                <f:selectItems value="#{incidenciaBean.acciones}" var="a" itemValue="#{a}" itemLabel="#{a}"/>
+                            </h:selectOneMenu>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="form-check">
+                                <h:selectBooleanCheckbox id="siseve" value="#{incidenciaBean.incidencia.requiereSiseve}"
+                                                         styleClass="form-check-input"/>
+                                <h:outputLabel for="siseve" value="Reportar en el SíseVe" styleClass="form-check-label"/>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <h:outputLabel for="descripcion" value="Descripción (obligatoria si es Grave o de tipo Otra)"
+                                           styleClass="form-label"/>
+                            <h:inputTextarea id="descripcion" value="#{incidenciaBean.incidencia.descripcion}"
+                                             styleClass="form-control" rows="3"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-end gap-2">
+                    <h:commandButton value="Cancelar" action="#{incidenciaBean.cancelar}" immediate="true"
+                                     styleClass="btn btn-secondary"/>
+                    <h:commandButton value="Registrar" action="#{incidenciaBean.guardar}" styleClass="btn btn-primary"/>
+                </div>
+            </h:form>
+        </div>
+
+        <h5 class="mb-2">Últimas incidencias</h5>
+        <h:dataTable value="#{incidenciaBean.recientes}" var="i"
+                     styleClass="table table-hover align-middle bg-white border"
+                     rendered="#{not empty incidenciaBean.recientes}">
+            <h:column>
+                <f:facet name="header">Fecha y hora</f:facet>
+                #{incidenciaBean.fechaHora(i)}
+            </h:column>
+            <h:column>
+                <f:facet name="header">Estudiante</f:facet>
+                #{incidenciaBean.nombreEstudiante(i.idEstudiante)}
+            </h:column>
+            <h:column>
+                <f:facet name="header">Tipo</f:facet>
+                #{incidenciaBean.nombreTipo(i.idTipoIncidencia)}
+            </h:column>
+            <h:column>
+                <f:facet name="header">Gravedad</f:facet>
+                <span class="badge #{incidenciaBean.claseGravedad(i.gravedad)}">#{i.gravedad}</span>
+                <h:outputText value="SíseVe" styleClass="badge bg-dark ms-1" rendered="#{i.requiereSiseve}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Acción tomada</f:facet>
+                #{i.accionTomada}
+            </h:column>
+        </h:dataTable>
+        <h:outputText value="Aún no hay incidencias registradas." styleClass="text-muted"
+                      rendered="#{empty incidenciaBean.recientes}"/>
+    </ui:define>
+
+</ui:composition>
+</html>

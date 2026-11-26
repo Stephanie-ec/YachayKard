@@ -3,6 +3,7 @@ package pe.edu.utp.yachaykard.dao;
 import pe.edu.utp.yachaykard.modelo.Asistencia;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -81,4 +82,14 @@ public interface AsistenciaDAO {
      * @throws SQLException si ocurre un error en la base de datos
      */
     List<Asistencia> listarPorSeccionYMes(int idSeccion, int anio, int mes) throws SQLException;
+
+    /**
+     * Lista la asistencia de un día de los estudiantes con matrícula activa en una sección (RF-18).
+     *
+     * @param idSeccion sección
+     * @param fecha     día a consultar
+     * @return registros de ese día (uno por estudiante que ya tiene asistencia)
+     * @throws SQLException si ocurre un error en la base de datos
+     */
+    List<Asistencia> listarPorSeccionYFecha(int idSeccion, LocalDate fecha) throws SQLException;
 }
