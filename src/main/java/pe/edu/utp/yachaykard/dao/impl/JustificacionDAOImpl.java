@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,13 +28,28 @@ public class JustificacionDAOImpl implements JustificacionDAO {
 
     @Override
     public void insertar(Justificacion justificacion) throws SQLException {
-        String sql = "INSERT INTO justificacion (fecha_inicio, fecha_fin, motivo, evidencia, id_estudiante, id_usuario) VALUES (?, ?, ?, ?, ?, ?)";
+        registrar(justificacion);
+    }
+
+    @Override
+    public int registrar(Justificacion justificacion) throws SQLException {
+        String sql = "INSERT INTO justificacion (fecha_inicio, fecha_fin, motivo, evidencia, id_estudiante, id_usuario) "
+                + "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection con = ConexionBD.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             asignarParametros(ps, justificacion);
             ps.executeUpdate();
+
+            try (ResultSet claves = ps.getGeneratedKeys()) {
+                if (!claves.next()) {
+                    throw new SQLException("No se obtuvo el id de la justificación nueva.");
+                }
+                int id = claves.getInt(1);
+                justificacion.setIdJustificacion(id);
+                return id;
+            }
         }
     }
 

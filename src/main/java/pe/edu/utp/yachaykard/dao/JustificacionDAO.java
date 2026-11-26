@@ -69,4 +69,14 @@ public interface JustificacionDAO {
      * @throws SQLException si ocurre un error en la base de datos
      */
     List<Justificacion> listarPorEstudiante(int idEstudiante) throws SQLException;
+
+    /**
+     * Registra una justificación y devuelve el id que le asignó la base de datos,
+     * para enlazarla con la asistencia (RF-19).
+     *
+     * @param justificacion datos de la justificación
+     * @return id de la justificación nueva
+     * @throws SQLException si ocurre un error en la base de datos
+     */
+    int registrar(Justificacion justificacion) throws SQLException;
 }

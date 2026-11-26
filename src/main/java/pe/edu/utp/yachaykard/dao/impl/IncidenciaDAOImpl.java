@@ -90,6 +90,11 @@ public class IncidenciaDAOImpl implements IncidenciaDAO {
         return consultar(CONSULTA_BASE + " WHERE id_estudiante = ? ORDER BY fecha_hora DESC", idEstudiante);
     }
 
+    @Override
+    public List<Incidencia> listarRecientes(int limite) throws SQLException {
+        return consultar(CONSULTA_BASE + " ORDER BY fecha_hora DESC, id_incidencia DESC LIMIT ?", limite);
+    }
+
     /**
      * Ejecuta una consulta con un único parámetro entero y devuelve las filas mapeadas.
      *

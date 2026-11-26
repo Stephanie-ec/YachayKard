@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:pt="jakarta.faces.passthrough">
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="titulo">Asistencia - YachayKard</ui:define>
+
+    <ui:define name="contenido">
+        <h2 class="mb-1">Asistencia</h2>
+        <p class="text-muted mb-3">Marque a cada estudiante y guarde. Una falta ya guardada se puede justificar
+            escribiendo el motivo (justificación de un día).</p>
+
+        <h:messages styleClass="list-unstyled" infoClass="alert alert-success" errorClass="alert alert-danger"/>
+
+        <h:form id="formAsistencia">
+            <div class="row g-3 align-items-end mb-3">
+                <div class="col-md-4">
+                    <h:outputLabel for="seccion" value="Sección" styleClass="form-label"/>
+                    <h:selectOneMenu id="seccion" value="#{asistenciaBean.idSeccion}" styleClass="form-select">
+                        <f:selectItem itemValue="0" itemLabel="— Seleccione —"/>
+                        <f:selectItems value="#{asistenciaBean.secciones}" var="s" itemValue="#{s.idSeccion}"
+                                       itemLabel="#{asistenciaBean.nombreSeccion(s.idSeccion)}"/>
+                        <f:ajax listener="#{asistenciaBean.cargar}" render="formAsistencia"/>
+                    </h:selectOneMenu>
+                </div>
+                <div class="col-md-3">
+                    <h:outputLabel for="fecha" value="Fecha" styleClass="form-label"/>
+                    <h:inputText id="fecha" value="#{asistenciaBean.fecha}" styleClass="form-control"
+                                 pt:type="date" converterMessage="Fecha no válida.">
+                        <f:convertDateTime type="localDate" pattern="yyyy-MM-dd"/>
+                        <f:ajax event="change" listener="#{asistenciaBean.cargar}" render="formAsistencia"/>
+                    </h:inputText>
+                </div>
+                <div class="col-md-5 text-muted">
+                    <h:outputText value="Faltas en la lista: #{asistenciaBean.faltas}" rendered="#{not empty asistenciaBean.filas}"/>
+                    <h:outputText value="No tiene secciones a su cargo. Consulte con el administrador."
+                                  rendered="#{empty asistenciaBean.secciones}"/>
+                </div>
+            </div>
+
+            <h:dataTable value="#{asistenciaBean.filas}" var="f"
+                         styleClass="table table-hover align-middle bg-white border"
+                         rendered="#{not empty asistenciaBean.filas}">
+                <h:column>
+                    <f:facet name="header">N.°</f:facet>
+                    #{f.orden}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Estudiante</f:facet>
+                    #{f.estudiante}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Asistencia</f:facet>
+                    <h:selectOneRadio id="estado" value="#{f.asistencia.estado}" layout="lineDirection"
+                                      styleClass="d-flex gap-3 mb-0">
+                        <f:selectItem itemValue="Presente" itemLabel=" Presente"/>
+                        <f:selectItem itemValue="Tardanza" itemLabel=" Tardanza"/>
+                        <f:selectItem itemValue="Falta" itemLabel=" Falta"/>
+                    </h:selectOneRadio>
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Justificación</f:facet>
+                    <h:outputText value="Justificada" styleClass="badge bg-info text-dark" rendered="#{f.justificada}"/>
+                    <h:panelGroup layout="block" styleClass="input-group input-group-sm" rendered="#{f.justificable}">
+                        <h:outputLabel for="motivo" value="Motivo" styleClass="input-group-text"/>
+                        <h:inputText id="motivo" value="#{f.motivo}" styleClass="form-control" maxlength="200"/>
+                        <h:commandButton value="Justificar" action="#{asistenciaBean.justificar(f)}"
+                                         styleClass="btn btn-outline-primary"/>
+                    </h:panelGroup>
+                </h:column>
+            </h:dataTable>
+
+            <h:panelGroup layout="block" styleClass="d-flex justify-content-end" rendered="#{not empty asistenciaBean.filas}">
+                <h:commandButton value="Guardar asistencia" action="#{asistenciaBean.guardar}" styleClass="btn btn-primary"/>
+            </h:panelGroup>
+        </h:form>
+    </ui:define>
+
+</ui:composition>
+</html>

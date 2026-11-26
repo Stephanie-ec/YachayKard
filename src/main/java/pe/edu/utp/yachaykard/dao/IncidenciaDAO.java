@@ -69,4 +69,13 @@ public interface IncidenciaDAO {
      * @throws SQLException si ocurre un error en la base de datos
      */
     List<Incidencia> listarPorEstudiante(int idEstudiante) throws SQLException;
+
+    /**
+     * Lista las incidencias más recientes (para la pantalla de registro, RF-23).
+     *
+     * @param limite cantidad máxima
+     * @return incidencias ordenadas de la más reciente a la más antigua
+     * @throws SQLException si ocurre un error en la base de datos
+     */
+    List<Incidencia> listarRecientes(int limite) throws SQLException;
 }
