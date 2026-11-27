@@ -83,10 +83,10 @@ class ReglasAsignacionTest {
     @DisplayName("Un curso no puede tener dos docentes en la misma sección y año")
     void cursoYaAsignado() throws SQLException {
         when(asignacionDAO.listarTodos()).thenReturn(List.of(asignacion(TUTOR, MATEMATICA)));
+        AsignacionCurso duplicada = asignacion(OTRO_DOCENTE, MATEMATICA);
 
-        AsignacionCurso repetida = asignacion(OTRO_DOCENTE, MATEMATICA);
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
-                () -> reglas.registrar(repetida));
+                () -> reglas.registrar(duplicada));
 
         assertEquals("Ese curso ya tiene un docente asignado en la sección este año.", error.getMessage());
         verify(asignacionDAO, never()).insertar(any());
