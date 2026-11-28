@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="titulo">Exportar al SIAGIE - YachayKard</ui:define>
+
+    <ui:define name="contenido">
+        <h2 class="mb-1">Exportar al SIAGIE</h2>
+        <p class="text-muted mb-3">Descarga la plantilla RegNotas con la lista de estudiantes y los niveles finales
+            del cierre del periodo (nivel y conclusión descriptiva), lista para subirla al SIAGIE.
+            <h:outputText value="Su archivo trae solo las hojas de sus cursos." rendered="#{exportarBean.docente}"/></p>
+
+        <h:messages styleClass="list-unstyled" infoClass="alert alert-success" errorClass="alert alert-danger"/>
+
+        <div class="card">
+            <h:form id="formExportar">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <h:outputLabel for="seccion" value="Sección *" styleClass="form-label"/>
+                            <h:selectOneMenu id="seccion" value="#{exportarBean.idSeccion}" styleClass="form-select">
+                                <f:selectItem itemValue="0" itemLabel="— Seleccione —"/>
+                                <f:selectItems value="#{exportarBean.secciones}" var="s" itemValue="#{s.idSeccion}"
+                                               itemLabel="#{exportarBean.nombreSeccion(s)}"/>
+                            </h:selectOneMenu>
+                        </div>
+                        <div class="col-md-4">
+                            <h:outputLabel for="periodo" value="Periodo *" styleClass="form-label"/>
+                            <h:selectOneMenu id="periodo" value="#{exportarBean.idPeriodo}" styleClass="form-select">
+                                <f:selectItem itemValue="0" itemLabel="— Seleccione —"/>
+                                <f:selectItems value="#{exportarBean.periodos}" var="p" itemValue="#{p.idPeriodo}"
+                                               itemLabel="#{p.nombrePeriodo}"/>
+                            </h:selectOneMenu>
+                        </div>
+                    </div>
+                    <p class="small text-muted mt-3 mb-0">Solo se llenan las áreas con el periodo cerrado
+                        (pantalla Cierre del periodo). Las demás hojas quedan con la lista de estudiantes.</p>
+                </div>
+                <div class="card-footer d-flex justify-content-end">
+                    <h:commandButton value="Descargar RegNotas (.xlsx)" action="#{exportarBean.descargar}"
+                                     styleClass="btn btn-primary"/>
+                </div>
+            </h:form>
+        </div>
+        <h:outputText value="No tiene secciones con cursos asignados." styleClass="d-block text-muted mt-3"
+                      rendered="#{empty exportarBean.secciones}"/>
+    </ui:define>
+
+</ui:composition>
+</html>

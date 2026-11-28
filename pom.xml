@@ -61,6 +61,13 @@
             <version>8.4.0</version>
         </dependency>
 
+        <!-- Apache POI: llena la plantilla Excel RegNotas del SIAGIE (RF-32) -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.5</version>
+        </dependency>
+
         <!-- JAX-RS (servicios RESTful) - Jersey, implementación de referencia -->
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
